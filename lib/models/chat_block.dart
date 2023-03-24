@@ -20,12 +20,11 @@ class ChatBlock extends StatefulWidget {
   Future initPref() async {
     pref = await SharedPreferences.getInstance();
     List<String>? wordList = pref.getStringList('wordList');
-    print(wordList);
     if (wordList == null) {
       await pref.setStringList('wordList', []);
       wordList = pref.getStringList("wordList");
-      print("initPref");
     }
+    print(wordList);
     ChatBlock.highlights = wordList!;
     doHighLight();
   }
@@ -39,11 +38,26 @@ class ChatBlock extends StatefulWidget {
               textspan: TextSpan(
                   text: wordBlocks[i].id,
                   style: TextStyle(
-                    color: Colors.red,
+                    color: Colors.black,
                     backgroundColor: Colors.yellow.shade200,
                   )));
           wordBlocks[i] = block;
         }
+      }
+    }
+  }
+
+  void removeHighLight(String removedWord) {
+    for (var i = 0; i < wordBlocks.length; i++) {
+      if (wordBlocks[i].id == removedWord) {
+        WordBlock block = WordBlock(
+            id: wordBlocks[i].id,
+            textspan: TextSpan(
+                text: wordBlocks[i].id,
+                style: const TextStyle(
+                  color: Colors.black,
+                )));
+        wordBlocks[i] = block;
       }
     }
   }
@@ -113,6 +127,20 @@ class _ChatBlockState extends State<ChatBlock> {
                             ContextMenuController.removeAny();
                           },
                         ));
+
+                    buttonItems.insert(
+                        1,
+                        ContextMenuButtonItem(
+                            label: "단어 삭제",
+                            onPressed: () {
+                              final String insidedText =
+                                  value.selection.textInside(value.text);
+                              ChatBlock.highlights?.remove(insidedText);
+                              widget.setWordList(ChatBlock.highlights);
+                              widget.removeHighLight(insidedText);
+                              setState(() {});
+                              ContextMenuController.removeAny();
+                            }));
                     return AdaptiveTextSelectionToolbar.buttonItems(
                         buttonItems: buttonItems,
                         anchors: editableTextState.contextMenuAnchors);

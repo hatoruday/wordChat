@@ -1,6 +1,7 @@
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:milchat/models/chat_block.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,6 +15,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<ChatBlock> _blocks = [];
   OpenAI? openAI;
+  late bool isGenerating;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -26,6 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       isLog: true,
     );
+    isGenerating = true;
+    _createTexts();
+
     super.initState();
   }
 
@@ -34,9 +40,17 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _createBlock() async {
-    ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
-    _blocks.insert(0, block);
+  void _createTexts() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> highlights = prefs.getStringList("wordList")!;
+    highlights.shuffle();
+    String selectedLight = highlights.pickOne();
+    String textRequest =
+        "make a sentence that has not ever generated over 100 letter using a word of \"$selectedLight\"";
+    //ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
+    print(textRequest);
+    ChatBlock block = ChatBlock(text: textRequest, sender: "user");
+    //_blocks.insert(0, block);
 
     _controller.clear();
 
@@ -51,26 +65,66 @@ class _HomeScreenState extends State<HomeScreen> {
         ChatBlock(text: botBlock!.choices[0].text, sender: "bot");
     setState(() {
       _blocks.insert(0, botMessage);
+      isGenerating = false;
+    });
+  }
+
+  void _createChats() async {
+    // String textRequest =
+    //     "make a sentence that has not ever generated over 100 letter using a word of $selectedLight";
+    ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
+    // ChatBlock block = ChatBlock(text: textRequest, sender: "user");
+    //_blocks.insert(0, block);
+
+    _controller.clear();
+
+    final request = CompleteText(
+      prompt: block.text,
+      model: kTextDavinci3,
+      maxTokens: 1000,
+    );
+
+    final botBlock = await openAI?.onCompletion(request: request);
+    ChatBlock botMessage =
+        ChatBlock(text: botBlock!.choices[0].text, sender: "bot");
+    setState(() {
+      _blocks.insert(0, botMessage);
+      isGenerating = false;
     });
   }
 
   Widget _buildTextComposer() {
-    return Row(children: [
-      Expanded(
-        child: TextField(
-          controller: _controller,
-          onSubmitted: (value) => _createBlock(),
-          decoration: const InputDecoration.collapsed(
-            hintText: "Seand a Message",
-          ),
-        ),
-      ),
-      IconButton(
-          onPressed: () => _createBlock(),
-          icon: const Icon(
-            Icons.send,
-          ))
-    ]).px16();
+    return isGenerating
+        ? Row(
+            children: const [
+              Expanded(
+                  child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(child: CircularProgressIndicator()),
+              ))
+            ],
+          )
+        : Row(children: [
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                onSubmitted: (value) => _createChats(),
+                decoration: const InputDecoration.collapsed(
+                  hintText: "Seand a Message",
+                ),
+              ),
+            ),
+            IconButton(
+                onPressed: () => _createChats(),
+                icon: const Icon(
+                  Icons.send,
+                )),
+            IconButton(
+                onPressed: () => _createTexts(),
+                icon: const Icon(
+                  Icons.ad_units,
+                )),
+          ]).px16();
   }
 
   @override
