@@ -42,18 +42,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _createTexts() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final List<String> highlights = prefs.getStringList("wordList")!;
-    final List<String> selectedCategories =
-        prefs.getStringList("categoryList")!;
-    highlights.shuffle();
+    List<String>? highlights = prefs.getStringList("wordList");
+    if (highlights == null) {
+      await prefs.setStringList('wordList', []);
+      highlights = prefs.getStringList('wordList');
+    }
+    List<String>? selectedCategories = prefs.getStringList("categoryList");
+    if (selectedCategories == null) {
+      await prefs.setStringList('categoryList', []);
+      selectedCategories = prefs.getStringList('categoryList');
+    }
     String selectedLight;
-    if (highlights.isNotEmpty) {
+    if (highlights!.isNotEmpty) {
       selectedLight = highlights.pickOne();
     } else {
       selectedLight = "아무";
     }
     String selectedCategory;
-    if (selectedCategories.isNotEmpty) {
+    if (selectedCategories!.isNotEmpty) {
       selectedCategory = selectedCategories.pickOne();
     } else {
       selectedCategory = "아무";

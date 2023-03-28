@@ -86,13 +86,13 @@ class _CategoryBoxState extends State<CategoryBox> {
         }
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 30),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
         child: Container(
           decoration: BoxDecoration(
               color: isSelected ? Colors.grey[700] : Colors.grey[100],
               border: Border.all(color: Colors.black)),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 3),
             child: Center(
               child: Column(
                 children: [
