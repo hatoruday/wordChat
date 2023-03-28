@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
       token: "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",
       baseOption: HttpSetup(
         receiveTimeout: const Duration(
-          seconds: 30,
+          seconds: 60,
         ),
       ),
       isLog: true,
@@ -43,10 +43,23 @@ class _HomeScreenState extends State<HomeScreen> {
   void _createTexts() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<String> highlights = prefs.getStringList("wordList")!;
+    final List<String> selectedCategories =
+        prefs.getStringList("categoryList")!;
     highlights.shuffle();
-    String selectedLight = highlights.pickOne();
+    String selectedLight;
+    if (highlights.isNotEmpty) {
+      selectedLight = highlights.pickOne();
+    } else {
+      selectedLight = "아무";
+    }
+    String selectedCategory;
+    if (selectedCategories.isNotEmpty) {
+      selectedCategory = selectedCategories.pickOne();
+    } else {
+      selectedCategory = "아무";
+    }
     String textRequest =
-        "make a sentence that has not ever generated over 100 letter using a word of \"$selectedLight\"";
+        "문장을 열거하지 말고 \"$selectedLight\" 단어를 포함해서, \"$selectedCategory\"와 관련된 주제로 긴 영어로 된 문단을 만들어줘. 이전에 생성했던거랑 겹치지 않게. ";
     //ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
     print(textRequest);
     ChatBlock block = ChatBlock(text: textRequest, sender: "user");
@@ -110,8 +123,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: _controller,
                 onSubmitted: (value) => _createChats(),
                 decoration: const InputDecoration.collapsed(
-                  hintText: "Seand a Message",
+                  hintText: "Send a Message",
                 ),
+                minLines: 1,
+                maxLines: 3,
               ),
             ),
             IconButton(
@@ -129,30 +144,51 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text("wordChat")),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Flexible(
-                child: ListView.builder(
-                  reverse: true,
-                  padding: Vx.m8,
-                  itemCount: _blocks.length,
-                  itemBuilder: (context, index) {
-                    ChatBlock chatblock = _blocks[index];
-                    return chatblock;
-                  },
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: context.cardColor,
-                ),
-                child: _buildTextComposer(),
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            title: const Text(
+              "wordChat",
+              style: TextStyle(color: Colors.black),
+            ),
+            actions: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/setting');
+                },
+                child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Icon(
+                      Icons.settings,
+                      color: Colors.black,
+                    )),
               )
             ],
           ),
-        ));
+          body: SafeArea(
+            child: Column(
+              children: [
+                Flexible(
+                  child: ListView.builder(
+                    reverse: true,
+                    padding: Vx.m8,
+                    itemCount: _blocks.length,
+                    itemBuilder: (context, index) {
+                      ChatBlock chatblock = _blocks[index];
+                      return chatblock;
+                    },
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: context.cardColor,
+                  ),
+                  child: _buildTextComposer(),
+                )
+              ],
+            ),
+          )),
+    );
   }
 }
