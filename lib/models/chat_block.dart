@@ -88,7 +88,6 @@ class ChatBlock extends StatefulWidget {
 
 class _ChatBlockState extends State<ChatBlock> {
   @override
-  @override
   Widget build(BuildContext context) {
     return Row(
       children: [

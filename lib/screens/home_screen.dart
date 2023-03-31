@@ -1,5 +1,6 @@
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:milchat/models/chat_block.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -16,12 +17,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<ChatBlock> _blocks = [];
   OpenAI? openAI;
   late bool isGenerating;
-  final ScrollController _scrollController = ScrollController();
+  //final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     openAI = OpenAI.instance.build(
-      token: "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",
+      token: dotenv.env['apiKey'],
       baseOption: HttpSetup(
         receiveTimeout: const Duration(
           seconds: 60,
@@ -56,16 +57,16 @@ class _HomeScreenState extends State<HomeScreen> {
     if (highlights!.isNotEmpty) {
       selectedLight = highlights.pickOne();
     } else {
-      selectedLight = "아무";
+      selectedLight = "any word";
     }
     String selectedCategory;
     if (selectedCategories!.isNotEmpty) {
       selectedCategory = selectedCategories.pickOne();
     } else {
-      selectedCategory = "아무";
+      selectedCategory = "any word";
     }
     String textRequest =
-        "문장을 열거하지 말고 \"$selectedLight\" 단어를 포함해서, \"$selectedCategory\"와 관련된 주제로 긴 영어로 된 문단을 만들어줘. 이전에 생성했던거랑 겹치지 않게. ";
+        "Including a \"$selectedLight\", Please make short paragraphs instead of enumerating sentences with numbers about a subject of \"$selectedCategory\"";
     //ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
     print(textRequest);
     ChatBlock block = ChatBlock(text: textRequest, sender: "user");
