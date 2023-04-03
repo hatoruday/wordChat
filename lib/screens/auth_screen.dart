@@ -3,32 +3,30 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:milchat/main.dart';
 
-class AuthWidget extends StatefulWidget {
-  const AuthWidget({super.key});
+class AuthForm extends StatefulWidget {
+  const AuthForm({super.key});
 
   @override
-  State<AuthWidget> createState() => _AuthWidgetState();
+  State<AuthForm> createState() => _AuthFormState();
 }
 
-class _AuthWidgetState extends State<AuthWidget> {
-  final _formKey = GlobalKey<FormState>();
-
+class _AuthFormState extends State<AuthForm> {
   late String email;
   late String password;
-  bool isInput = true;
-  bool isSignIn = true;
+  final _formKey = GlobalKey<FormState>();
 
   signIn() async {
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password)
           .then((value) {
-        print(value);
+        //print(value);
         if (value.user!.emailVerified) {
           //이메일 인증 여부
-          setState(() {
-            isInput = false;
-          });
+          // setState(() {
+          //   isInput = false;
+          // });
+          Navigator.pushNamed(context, "/home"); //로그인되면 홈화면 이동한다.
         } else {
           showToast('emailVerified error');
         }
@@ -45,43 +43,19 @@ class _AuthWidgetState extends State<AuthWidget> {
     }
   }
 
-  signOut() async {
-    await FirebaseAuth.instance.signOut();
-    setState(() {
-      isInput = true;
-    });
-  }
-
-  signUp() async {
-    try {
-      await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) {
-        if (value.user!.email != null) {
-          FirebaseAuth.instance.currentUser?.sendEmailVerification();
-          setState(() {
-            isInput = false;
-          });
-        }
-        return value;
-      });
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        showToast('weak-password');
-      } else if (e.code == 'email-already-in-use') {
-        showToast('email-already-in-use');
-      } else {
-        showToast('other error');
-        print(e.code);
-      }
-    }
-  }
+  //로그아웃 메서드
+  //   signOut() async {
+  //   await FirebaseAuth.instance.signOut();
+  //   setState(() {
+  //     isInput = true;
+  //   });
+  // }
 
   List<Widget> getInputWidget() {
     return [
-      Text(
-        isSignIn ? "SignIn" : "SignUp",
-        style: const TextStyle(
+      const Text(
+        "SignIn",
+        style: TextStyle(
           color: Colors.indigo,
           fontWeight: FontWeight.bold,
           fontSize: 20,
@@ -126,62 +100,31 @@ class _AuthWidgetState extends State<AuthWidget> {
           onPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
               _formKey.currentState?.save();
-              print('email : $email, password : $password');
-              if (isSignIn) {
-                signIn();
-              } else {
-                signUp();
-              }
+              //print('email : $email, password : $password');
+              signIn();
             }
           },
-          child: Text(isSignIn ? "SignIn" : "SignUp")),
+          child: const Text("로그인")),
       RichText(
-          textAlign: TextAlign.right,
-          text: TextSpan(
-              text: 'Go',
-              style: Theme.of(context).textTheme.bodyLarge,
-              children: <TextSpan>[
-                TextSpan(
-                    text: isSignIn ? "SignUp" : "SignIn",
-                    style: const TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                    ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        setState(() {
-                          isSignIn = !isSignIn;
-                        });
-                      })
-              ]))
-    ];
-  }
-
-  List<Widget> getResultWidget() {
-    String resultEmail = FirebaseAuth.instance.currentUser!.email!;
-    return [
-      Text(
-        isSignIn
-            ? "$resultEmail로 로그인 하셨습니다!"
-            : "$resultEmail로 회원 가입 하셨습니다. 이메일 인증을 거춰야 로그인이 가능합니다.",
-        style: const TextStyle(
-          color: Colors.black54,
-          fontWeight: FontWeight.bold,
+        textAlign: TextAlign.right,
+        text: TextSpan(
+          text: '계정이 없다면, ',
+          style: Theme.of(context).textTheme.bodyLarge,
+          children: <TextSpan>[
+            TextSpan(
+                text: "회원가입",
+                style: const TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    Navigator.pushNamed(context, "/register");
+                  }),
+          ],
         ),
-      ),
-      ElevatedButton(
-          onPressed: () {
-            if (isSignIn) {
-              signOut();
-            } else {
-              setState(() {
-                isInput = true;
-                isSignIn = true;
-              });
-            }
-          },
-          child: Text(isSignIn ? "SignOut" : "SignIn")),
+      )
     ];
   }
 
@@ -189,11 +132,11 @@ class _AuthWidgetState extends State<AuthWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Auth Test"),
+        title: const Text("로그인"),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: isInput ? getInputWidget() : getResultWidget(),
+        children: getInputWidget(),
       ),
     );
   }

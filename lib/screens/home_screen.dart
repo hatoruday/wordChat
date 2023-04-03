@@ -1,4 +1,6 @@
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:milchat/models/chat_block.dart';
@@ -43,21 +45,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _createTexts() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? highlights = prefs.getStringList("wordList");
-    if (highlights == null) {
-      await prefs.setStringList('wordList', []);
-      highlights = prefs.getStringList('wordList');
+    //List<String>? highlights = prefs.getStringList("wordList");
+
+    final storeInstance = FirebaseFirestore.instance;
+    final userEmail = FirebaseAuth.instance.currentUser?.email;
+    final highWordQuarySnapShot = await storeInstance
+        .collection("HighWord")
+        .where("user", isEqualTo: userEmail)
+        .get();
+    final docs = highWordQuarySnapShot.docs;
+    for (var element in docs) {
+      ChatBlock.highlights.add(element.get("highWord"));
     }
+    // if (highlights == null) {
+    //   await prefs.setStringList('wordList', []);
+    //   highlights = prefs.getStringList('wordList');
+    // }
     List<String>? selectedCategories = prefs.getStringList("categoryList");
     if (selectedCategories == null) {
       await prefs.setStringList('categoryList', []);
       selectedCategories = prefs.getStringList('categoryList');
     }
     String selectedLight;
-    if (highlights!.isNotEmpty) {
-      selectedLight = highlights.pickOne();
+    if (ChatBlock.highlights.isNotEmpty) {
+      selectedLight = ChatBlock.highlights.pickOne();
     } else {
-      selectedLight = "any word";
+      selectedLight = "any";
     }
     String selectedCategory;
     if (selectedCategories!.isNotEmpty) {
@@ -66,9 +79,9 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedCategory = "any word";
     }
     String textRequest =
-        "Including a \"$selectedLight\", Please make short paragraphs instead of enumerating sentences with numbers about a subject of \"$selectedCategory\"";
+        "Including a word of \"$selectedLight\", Please make short paragraphs instead of enumerating sentences with numbers about a subject of \"$selectedCategory\"";
     //ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
-    print(textRequest);
+    //print(textRequest);
     ChatBlock block = ChatBlock(text: textRequest, sender: "user");
     //_blocks.insert(0, block);
 
@@ -81,8 +94,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     final botBlock = await openAI?.onCompletion(request: request);
-    ChatBlock botMessage =
-        ChatBlock(text: botBlock!.choices[0].text, sender: "bot");
+    final String responseMessage = botBlock!.choices[0].text;
+    ChatBlock botMessage = ChatBlock(text: responseMessage, sender: "bot");
     setState(() {
       _blocks.insert(0, botMessage);
       isGenerating = false;

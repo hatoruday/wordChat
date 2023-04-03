@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:milchat/screens/auth_screen.dart';
 import 'package:milchat/screens/category_screen.dart';
 import 'package:milchat/screens/home_screen.dart';
+import 'package:milchat/screens/register_screen.dart';
 import 'package:milchat/screens/setting_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -35,12 +36,13 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/login',
+      initialRoute: '/',
       routes: {
-        '/': (context) => const HomeScreen(),
+        '/home': (context) => const HomeScreen(),
         '/setting': (context) => const SettingScreen(),
         '/setting/category': (context) => CategoryScreen(),
-        '/login': (context) => const AuthWidget(),
+        '/': (context) => const AuthForm(),
+        '/register': (context) => const RegisterForm(),
       },
       debugShowCheckedModeBanner: false,
       title: "WordChat",
