@@ -95,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final botBlock = await openAI?.onCompletion(request: request);
     final String responseMessage = botBlock!.choices[0].text;
+
     ChatBlock botMessage = ChatBlock(text: responseMessage, sender: "bot");
     setState(() {
       _blocks.insert(0, botMessage);
