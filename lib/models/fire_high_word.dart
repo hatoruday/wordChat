@@ -1,3 +1,4 @@
+
 class FireHighWord {
   String highWord;
   String user;

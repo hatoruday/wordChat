@@ -3,7 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import 'package:milchat/models/chat_block.dart';
+import 'package:milchat/models/fire_chat_block.dart';
+import 'package:milchat/test/storage_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
@@ -33,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isLog: true,
     );
     isGenerating = true;
-    _createTexts();
+    loadFireChat();
 
     super.initState();
   }
@@ -43,10 +46,49 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  Future loadFireChat() async {
+    final storeInstance = FirebaseFirestore.instance;
+    final userEmail = FirebaseAuth.instance.currentUser?.email;
+    final highWordQuarySnapShot = await storeInstance
+        .collection("ChatBlock")
+        .where("user", isEqualTo: userEmail)
+        .orderBy("date")
+        .get();
+    final docs = highWordQuarySnapShot.docs;
+    for (var element in docs) {
+      ChatBlock botMessage =
+          ChatBlock(text: element.get("chatBlock"), sender: "bot");
+      _blocks.insert(0, botMessage);
+    }
+    setState(() {
+      isGenerating = false;
+    });
+  }
+
+  Future saveFireChat(String responsetext) async {
+    try {
+      String? user = FirebaseAuth.instance.currentUser?.email;
+      DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+      final highWord = FireChatBlock(
+        user: user!,
+        chatBlock: responsetext,
+        date: dateFormat.format(DateTime.now()),
+      );
+      CollectionReference collectionRef =
+          FirebaseFirestore.instance.collection("ChatBlock");
+      await collectionRef.add(highWord.toJson());
+    } catch (e) {
+      showToast("saveFireChat error");
+      print(e);
+    }
+  }
+
   void _createTexts() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     //List<String>? highlights = prefs.getStringList("wordList");
-
+    setState(() {
+      isGenerating = true;
+    });
     final storeInstance = FirebaseFirestore.instance;
     final userEmail = FirebaseAuth.instance.currentUser?.email;
     final highWordQuarySnapShot = await storeInstance
@@ -76,10 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (selectedCategories!.isNotEmpty) {
       selectedCategory = selectedCategories.pickOne();
     } else {
-      selectedCategory = "any word";
+      selectedCategory = "any subject";
     }
     String textRequest =
-        "Including a word of \"$selectedLight\", Please make short paragraphs instead of enumerating sentences with numbers about a subject of \"$selectedCategory\"";
+        "Including a word of \"$selectedLight\", Please make short paragraphs excluding enumerating sentences with numbers about \"$selectedCategory\"";
     //ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
     //print(textRequest);
     ChatBlock block = ChatBlock(text: textRequest, sender: "user");
@@ -95,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final botBlock = await openAI?.onCompletion(request: request);
     final String responseMessage = botBlock!.choices[0].text;
-
+    await saveFireChat(responseMessage);
     ChatBlock botMessage = ChatBlock(text: responseMessage, sender: "bot");
     setState(() {
       _blocks.insert(0, botMessage);

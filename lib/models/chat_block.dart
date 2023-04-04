@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:milchat/models/word_block.dart';
-import 'package:milchat/models/word_content_model.dart';
+import 'package:milchat/models/fire_high_word.dart';
 import 'package:milchat/test/storage_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
