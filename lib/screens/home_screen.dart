@@ -2,10 +2,10 @@ import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:milchat/models/chat_block.dart';
 import 'package:milchat/models/fire_chat_block.dart';
+import 'package:milchat/services/api_services.dart';
 import 'package:milchat/test/storage_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     openAI = OpenAI.instance.build(
-      token: dotenv.env['apiKey'],
+      token: "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",
       baseOption: HttpSetup(
         receiveTimeout: const Duration(
           seconds: 60,
@@ -47,15 +47,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future loadFireChat() async {
-    final storeInstance = FirebaseFirestore.instance;
     final userEmail = FirebaseAuth.instance.currentUser?.email;
+    final storeInstance = FirebaseFirestore.instance;
+    //highword를 firebase로부터 load한다.
     final highWordQuarySnapShot = await storeInstance
+        .collection("HighWord")
+        .where("user", isEqualTo: userEmail)
+        .get();
+    final highWordDocs = highWordQuarySnapShot.docs;
+    //로드한 단어들을 ChatBlock의 static변수에 추가한다.
+    for (var element in highWordDocs) {
+      ChatBlock.highlights.add(element.get("highWord"));
+    }
+
+    //firebase에 저장된 chatblock을 가져온다.
+    final chatBlockQuarySnapShot = await storeInstance
         .collection("ChatBlock")
         .where("user", isEqualTo: userEmail)
         .orderBy("date")
         .get();
-    final docs = highWordQuarySnapShot.docs;
-    for (var element in docs) {
+    final chatBlockDocs = chatBlockQuarySnapShot.docs;
+    for (var element in chatBlockDocs) {
       ChatBlock botMessage =
           ChatBlock(text: element.get("chatBlock"), sender: "bot");
       _blocks.insert(0, botMessage);
@@ -83,62 +95,39 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _createTexts() async {
+  void createBlock() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     //List<String>? highlights = prefs.getStringList("wordList");
     setState(() {
       isGenerating = true;
     });
-    final storeInstance = FirebaseFirestore.instance;
-    final userEmail = FirebaseAuth.instance.currentUser?.email;
-    final highWordQuarySnapShot = await storeInstance
-        .collection("HighWord")
-        .where("user", isEqualTo: userEmail)
-        .get();
-    final docs = highWordQuarySnapShot.docs;
-    for (var element in docs) {
-      ChatBlock.highlights.add(element.get("highWord"));
-    }
-    // if (highlights == null) {
-    //   await prefs.setStringList('wordList', []);
-    //   highlights = prefs.getStringList('wordList');
-    // }
+
     List<String>? selectedCategories = prefs.getStringList("categoryList");
     if (selectedCategories == null) {
       await prefs.setStringList('categoryList', []);
       selectedCategories = prefs.getStringList('categoryList');
     }
+    //highlights 중 하나를 뽑는다.
     String selectedLight;
     if (ChatBlock.highlights.isNotEmpty) {
       selectedLight = ChatBlock.highlights.pickOne();
     } else {
       selectedLight = "any";
     }
+    //selectedCategory중 하나를 뽑는다.
     String selectedCategory;
     if (selectedCategories!.isNotEmpty) {
       selectedCategory = selectedCategories.pickOne();
     } else {
       selectedCategory = "any subject";
     }
-    String textRequest =
-        "Including a word of \"$selectedLight\", Please make short paragraphs excluding enumerating sentences with numbers about \"$selectedCategory\"";
-    //ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
-    //print(textRequest);
-    ChatBlock block = ChatBlock(text: textRequest, sender: "user");
-    //_blocks.insert(0, block);
+    //firebase cloud functions을 이용해 chatgpt Api Response를 가져온다.
+    ApiService service = ApiService(
+        selectedCategory: selectedCategory, selectedLight: selectedLight);
+    String fireResponseMessage = await service.makeChatResponse();
 
-    _controller.clear();
-
-    final request = CompleteText(
-      prompt: block.text,
-      model: kTextDavinci3,
-      maxTokens: 1000,
-    );
-
-    final botBlock = await openAI?.onCompletion(request: request);
-    final String responseMessage = botBlock!.choices[0].text;
-    await saveFireChat(responseMessage);
-    ChatBlock botMessage = ChatBlock(text: responseMessage, sender: "bot");
+    await saveFireChat(fireResponseMessage);
+    ChatBlock botMessage = ChatBlock(text: fireResponseMessage, sender: "bot");
     setState(() {
       _blocks.insert(0, botMessage);
       isGenerating = false;
@@ -198,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icons.send,
                 )),
             IconButton(
-                onPressed: () => _createTexts(),
+                onPressed: () => createBlock(),
                 icon: const Icon(
                   Icons.ad_units,
                 )),
