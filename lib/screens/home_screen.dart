@@ -124,9 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
     //firebase cloud functions을 이용해 chatgpt Api Response를 가져온다.
     ApiService service = ApiService(
         selectedCategory: selectedCategory, selectedLight: selectedLight);
-    String fireResponseMessage = await service.makeChatResponse();
+    String fireResponseMessage =
+        await service.makeChatResponse(null); //응답을 텍스트로 받아온다.
 
-    await saveFireChat(fireResponseMessage);
+    await saveFireChat(fireResponseMessage); //응답을 firebase document내에 저장한다.
     ChatBlock botMessage = ChatBlock(text: fireResponseMessage, sender: "bot");
     setState(() {
       _blocks.insert(0, botMessage);
@@ -135,23 +136,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _createChats() async {
-    // String textRequest =
-    //     "make a sentence that has not ever generated over 100 letter using a word of $selectedLight";
-    ChatBlock block = ChatBlock(text: _controller.text, sender: "user");
+    setState(() {
+      isGenerating = true;
+    });
+    String inputMessage = _controller.text;
+    _controller.clear();
+    String fireResponseMessage =
+        await ApiService().makeChatResponse(inputMessage);
+
     // ChatBlock block = ChatBlock(text: textRequest, sender: "user");
     //_blocks.insert(0, block);
 
-    _controller.clear();
-
-    final request = CompleteText(
-      prompt: block.text,
-      model: kTextDavinci3,
-      maxTokens: 1000,
-    );
-
-    final botBlock = await openAI?.onCompletion(request: request);
-    ChatBlock botMessage =
-        ChatBlock(text: botBlock!.choices[0].text, sender: "bot");
+    await saveFireChat(fireResponseMessage); //응답을 firebase document내에 저장한다.
+    ChatBlock botMessage = ChatBlock(text: fireResponseMessage, sender: "bot");
     setState(() {
       _blocks.insert(0, botMessage);
       isGenerating = false;

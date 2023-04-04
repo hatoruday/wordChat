@@ -1,10 +1,10 @@
 import 'package:cloud_functions/cloud_functions.dart';
 
 class ApiService {
-  String selectedCategory, selectedLight;
+  String? selectedCategory, selectedLight;
   ApiService({
-    required this.selectedCategory,
-    required this.selectedLight,
+    this.selectedCategory = "any subject",
+    this.selectedLight = "any",
   });
 
   Future<String?> fireCreateTexts(String inputPrompt) async {
@@ -25,9 +25,10 @@ class ApiService {
   }
 
   //createText():
-  Future makeChatResponse() async {
+  Future makeChatResponse(String? justChat) async {
     String textRequest =
         "Including a word of \"$selectedLight\", Please make short paragraphs excluding enumerating sentences with numbers about \"$selectedCategory\"";
-    return await fireCreateTexts(textRequest);
+
+    return await fireCreateTexts(justChat ?? textRequest);
   }
 }

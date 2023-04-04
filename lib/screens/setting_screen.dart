@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SettingScreen extends StatelessWidget {
@@ -26,7 +27,7 @@ class SettingScreen extends StatelessWidget {
                           style: TextStyle(color: Colors.grey.shade700),
                         ),
                       ),
-                      const SettingElement(text: "로그인 설정"),
+                      const LogoutElement(text: "로그아웃"),
                       const SettingElement(text: "카테고리 설정")
                     ],
                   ))
@@ -35,6 +36,41 @@ class SettingScreen extends StatelessWidget {
             )
           ]),
         ));
+  }
+}
+
+class LogoutElement extends StatelessWidget {
+  final String text;
+  const LogoutElement({
+    super.key,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await FirebaseAuth.instance.signOut();
+        Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey.shade300)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(
+              text,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const Icon(Icons.chevron_right)
+          ]),
+        ),
+      ),
+    );
   }
 }
 

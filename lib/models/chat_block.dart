@@ -106,12 +106,34 @@ class ChatBlock extends StatefulWidget {
         highWord: insidedText,
         date: dateFormat.format(DateTime.now()),
       );
+      highlights.add(insidedText);
       CollectionReference collectionRef =
           FirebaseFirestore.instance.collection("HighWord");
       await collectionRef.add(highWord.toJson());
     } catch (e) {
       showToast("setFireWord error");
       print(e);
+    }
+  }
+
+  Future deleteFireWord(String insidedText) async {
+    try {
+      String? user = FirebaseAuth.instance.currentUser?.email;
+
+      CollectionReference collectionRef =
+          FirebaseFirestore.instance.collection("HighWord");
+      QuerySnapshot fireWordDocRef = await collectionRef
+          .where("highWord", isEqualTo: insidedText)
+          .where("user", isEqualTo: user)
+          .get();
+      for (var quarydocumentsnapshot in fireWordDocRef.docs) {
+        quarydocumentsnapshot.reference.delete();
+      }
+      highlights.remove(insidedText);
+      removeHighLight(insidedText);
+    } catch (e) {
+      showToast("deleteFireWord error");
+      print("deleteFireWordError$e");
     }
   }
 
@@ -152,11 +174,7 @@ class _ChatBlockState extends State<ChatBlock> {
                           onPressed: () async {
                             final String insidedText =
                                 value.selection.textInside(value.text);
-                            ChatBlock.highlights
-                                .add(insidedText); //하이라이트 변수에 단어를 추가한후
                             await widget.saveFireWord(insidedText);
-                            //widget.setWordList(ChatBlock
-                            //    .highlights); //하이라이트 변수로 prefs를 업데이트한다.
                             widget
                                 .doHighLight(); //즉각적인 핫로드를 위해 다시 한번 하이라이트 변수를 가져와 모든 wordBlock을 업데이트한다.
                             setState(() {}); //그리고 다시 스크린 빌드.
@@ -168,15 +186,10 @@ class _ChatBlockState extends State<ChatBlock> {
                         1,
                         ContextMenuButtonItem(
                             label: "단어 삭제",
-                            onPressed: () {
+                            onPressed: () async {
                               final String insidedText =
                                   value.selection.textInside(value.text);
-                              ChatBlock.highlights
-                                  .remove(insidedText); //하이라이트 변수에서 해당 단어 삭제후
-                              //widget.setWordList(
-                              //    ChatBlock.highlights!.toList()); //prefs를 업데이트하고
-                              widget.removeHighLight(
-                                  insidedText); //삭제된 wordBlock을 탐색으로 다 찾아 검은색 wordBlock으로 업데이트한다.
+                              await widget.deleteFireWord(insidedText);
                               setState(() {});
                               ContextMenuController.removeAny();
                             }));
