@@ -11,8 +11,6 @@ class ChatBlock extends StatefulWidget {
   ChatBlock({super.key, required this.text, required this.sender}) {
     createBlocks(); //챗블록 클래스가 생성되고, 매개변수로 받아온 text로 단어 리스트로 변환하고,
     //단어 하나하나마다 wordBlock으로 초기화한 후, wordBlocks리스트에 추가한다.
-    //
-    //
     //initPref(); //chatblock인스턴스가 생기자마자, prefs객체를 생성하고, wordlist의 값을 받아와 highlight변수에 저장한다.
     doHighLight(); //그리고 dohighlight를 불러오고,
   }
@@ -31,67 +29,30 @@ class ChatBlock extends StatefulWidget {
     for (var word in words) {
       WordBlock original = WordBlock(
         id: word,
-        textspan: TextSpan(
-          text: word,
-          style: const TextStyle(
-            color: Colors.black,
-          ),
-        ),
+        backColor: Colors.transparent,
       );
       wordBlocks.add(original);
     }
   }
-
-  // void setWordList(List<String>? wordList) async {
-  //   await pref.setStringList(
-  //       'wordList', wordList!); //현재 기기 내부 데이터를 wordList 변수의 값으로 초기화한다.
-  // }
-
-  // Future initPref() async {
-  //   pref = await SharedPreferences.getInstance();
-  //   List<String>? wordList =
-  //       pref.getStringList('wordList'); // 기기내부에서 wordList 데이터를 가져온다.
-  //   if (wordList == null) {
-  //     //만약 처음 chatblock클래스가 생성되어서
-  //     await pref.setStringList('wordList', []);
-  //     wordList = pref.getStringList("wordList");
-  //   }
-  //   print(wordList);
-  //   ChatBlock.highlights =
-  //       wordList!.toSet(); //ChatBlock 클래스의 스태틱 변수 highlights에
-  //   //sharedPreference에서 가져온 기기 내부 데이터 wordList를 넣는다.
-  //   doHighLight();
-  // }
 
   void doHighLight() {
     for (var light in highlights) {
       for (var i = 0; i < wordBlocks.length; i++) {
         if (wordBlocks[i].id == light) {
           WordBlock block = WordBlock(
-              id: wordBlocks[i].id,
-              textspan: TextSpan(
-                  text: wordBlocks[i].id,
-                  style: TextStyle(
-                    color: Colors.black,
-                    backgroundColor: Colors.yellow.shade200,
-                  )));
+              id: wordBlocks[i].id, backColor: Colors.yellow.shade200);
           wordBlocks[i] = block;
         }
       }
     }
-    print(highlights);
+    //print(highlights);
   }
 
   void removeHighLight(String removedWord) {
     for (var i = 0; i < wordBlocks.length; i++) {
       if (wordBlocks[i].id == removedWord) {
-        WordBlock block = WordBlock(
-            id: wordBlocks[i].id,
-            textspan: TextSpan(
-                text: wordBlocks[i].id,
-                style: const TextStyle(
-                  color: Colors.black,
-                )));
+        WordBlock block =
+            WordBlock(id: wordBlocks[i].id, backColor: Colors.transparent);
         wordBlocks[i] = block;
       }
     }
@@ -112,7 +73,7 @@ class ChatBlock extends StatefulWidget {
       await collectionRef.add(highWord.toJson());
     } catch (e) {
       showToast("setFireWord error");
-      print(e);
+      showToast(e.toString());
     }
   }
 
@@ -133,7 +94,7 @@ class ChatBlock extends StatefulWidget {
       removeHighLight(insidedText);
     } catch (e) {
       showToast("deleteFireWord error");
-      print("deleteFireWordError$e");
+      showToast("deleteFireWordError$e");
     }
   }
 
@@ -158,9 +119,9 @@ class _ChatBlockState extends State<ChatBlock> {
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: SelectableText.rich(
-                  TextSpan(text: "", children: <TextSpan>[
+                  TextSpan(text: "", children: <WidgetSpan>[
                     for (var wordBlock in widget.wordBlocks)
-                      wordBlock.textspan!,
+                      wordBlock.createWidgetSpan(context)
                   ]),
                   contextMenuBuilder: (context, editableTextState) {
                     final TextEditingValue value =
