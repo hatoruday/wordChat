@@ -198,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
             backgroundColor: Colors.white,
             title: const Text(
-              "wordChat",
+              "리딧",
               style: TextStyle(color: Colors.black),
             ),
             actions: [

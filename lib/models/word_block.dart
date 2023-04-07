@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class WordBlock {
   final wordKey = GlobalKey();
+
   void showOveray(BuildContext context, Offset topLeft, Offset bottomRight) {
     final overlay = Overlay.of(context);
     late OverlayEntry overlayEntry;
