@@ -1,66 +1,42 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:milchat/services/overLay.dart';
 
 class WordBlock {
   final wordKey = GlobalKey();
-
-  void showOveray(BuildContext context, Offset topLeft, Offset bottomRight) {
-    final overlay = Overlay.of(context);
-    late OverlayEntry overlayEntry;
-    overlayEntry = OverlayEntry(builder: ((context) {
-      final width = bottomRight.dx - topLeft.dx;
-      final height = bottomRight.dy - topLeft.dy;
-      return Positioned(
-        left: topLeft.dx,
-        top: topLeft.dy,
-        child: GestureDetector(
-          onTap: () => overlayEntry.remove(),
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text("hello"),
-            ),
-          ),
-        ),
-      );
-    }));
-    overlay.insert(overlayEntry);
-  }
-
-  void onTap(BuildContext context) {
-    //key.currentContext: 이 키를 갖고 있는 위젯이 빌드 되는 곳의 buildContext를 가져온다.
-    final renderBox = wordKey.currentContext!.findRenderObject() as RenderBox;
-    final topLeftOffset = renderBox.localToGlobal(Offset.zero);
-    final bottomRightOffset =
-        renderBox.localToGlobal(renderBox.size.bottomRight(Offset.zero));
-    showOveray(context, topLeftOffset, bottomRightOffset);
-  }
-
+  bool isSelected = false;
   final String id;
   final Color backColor;
-  WordBlock({required this.id, required this.backColor});
+  final TapGestureRecognizer _tapGestureRecognizer = TapGestureRecognizer();
 
-  TextSpan createWordBlock() {
-    return TextSpan(
-      recognizer: TapGestureRecognizer()..onTap = () {},
+  WordBlock({required this.id, required this.backColor}) {
+    _tapGestureRecognizer.onTapDown = onTapWordBlock;
+  }
+
+  void onTapWordBlock(TapDownDetails details) {}
+
+  TextSpan createWordBlock(BuildContext context) {
+    final TextSpan wordBlockTextSpan;
+    wordBlockTextSpan = TextSpan(
       text: id,
       style: TextStyle(
         color: Colors.black,
         backgroundColor: backColor,
       ),
     );
+    //TextSpan을 감싸는 TextPainter를 생성한다.
+
+    return wordBlockTextSpan;
   }
 
   WidgetSpan createWidgetSpan(BuildContext context) {
     return WidgetSpan(
       child: GestureDetector(
         onTap: () {
-          onTap(context);
+          final renderBox =
+              wordKey.currentContext!.findRenderObject() as RenderBox;
+          final topLeftOffset = renderBox.localToGlobal(Offset.zero);
+          MakeOverlay.onTap(context, id, topLeftOffset);
         },
         child: Text(
           id,

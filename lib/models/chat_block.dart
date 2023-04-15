@@ -14,6 +14,7 @@ class ChatBlock extends StatefulWidget {
     //initPref(); //chatblock인스턴스가 생기자마자, prefs객체를 생성하고, wordlist의 값을 받아와 highlight변수에 저장한다.
     doHighLight(); //그리고 dohighlight를 불러오고,
   }
+
   static Set<String> highlights = {};
   final String text;
   final String sender;
@@ -45,7 +46,6 @@ class ChatBlock extends StatefulWidget {
         }
       }
     }
-    //print(highlights);
   }
 
   void removeHighLight(String removedWord) {
@@ -103,6 +103,7 @@ class ChatBlock extends StatefulWidget {
 }
 
 class _ChatBlockState extends State<ChatBlock> {
+  String selectedText = '';
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -119,10 +120,13 @@ class _ChatBlockState extends State<ChatBlock> {
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: SelectableText.rich(
-                  TextSpan(text: "", children: <WidgetSpan>[
+                  TextSpan(text: "", children: <InlineSpan>[
                     for (var wordBlock in widget.wordBlocks)
                       wordBlock.createWidgetSpan(context)
                   ]),
+                  onSelectionChanged: (selection, cause) {
+                    selectedText = selection.textInside(widget.text);
+                  },
                   contextMenuBuilder: (context, editableTextState) {
                     final TextEditingValue value =
                         editableTextState.textEditingValue;
@@ -135,6 +139,8 @@ class _ChatBlockState extends State<ChatBlock> {
                           onPressed: () async {
                             final String insidedText =
                                 value.selection.textInside(value.text);
+
+                            print('단어저장:$selectedText');
                             await widget.saveFireWord(insidedText);
                             widget
                                 .doHighLight(); //즉각적인 핫로드를 위해 다시 한번 하이라이트 변수를 가져와 모든 wordBlock을 업데이트한다.
@@ -151,6 +157,23 @@ class _ChatBlockState extends State<ChatBlock> {
                               final String insidedText =
                                   value.selection.textInside(value.text);
                               await widget.deleteFireWord(insidedText);
+                              setState(() {});
+                              ContextMenuController.removeAny();
+                            }));
+                    buttonItems.insert(
+                        2,
+                        ContextMenuButtonItem(
+                            label: "문장 번역",
+                            onPressed: () async {
+                              final String insidedText =
+                                  value.selection.textInside(value.text);
+                              print(insidedText);
+                              // final renderBox =
+                              //     context.findRenderObject() as RenderBox;
+                              // Offset localZeroOffset =
+                              //     renderBox.localToGlobal(Offset.zero);
+                              // MakeOverlay.onTap(
+                              //     context, insidedText, localZeroOffset);
                               setState(() {});
                               ContextMenuController.removeAny();
                             }));
