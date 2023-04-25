@@ -8,7 +8,7 @@ class MakeOverlay {
 
   MakeOverlay(this.context, this.tapWord);
 
-  static void showOverlay(
+  static void showWordOverlay(
       BuildContext context, Offset topLeft, String papagoResult) {
     //MediaQuery를 통해 현재 화면의 스크린 사이즈를 구하고 반으로 나눠 TranslateBlock을 생성할 가운데 x좌표를 구한다.
     final screenWidth = MediaQuery.of(context).size.width;
@@ -48,7 +48,7 @@ class MakeOverlay {
     //key.currentContext: 이 키를 갖고 있는 위젯이 빌드 되는 곳의 buildContext를 가져온다.
 
     ApiService.getNaverResponse(tapWord).then((value) {
-      showOverlay(context, topLeftOffset, value);
+      showWordOverlay(context, topLeftOffset, value);
     });
   }
 }

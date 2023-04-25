@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:milchat/models/word_block.dart';
 import 'package:milchat/models/fire_high_word.dart';
+import 'package:milchat/services/overlay.dart';
 import 'package:milchat/test/storage_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:ui' as ui;
 
 class ChatBlock extends StatefulWidget {
   ChatBlock({super.key, required this.text, required this.sender}) {
@@ -20,6 +22,7 @@ class ChatBlock extends StatefulWidget {
   final String sender;
   final List<WordBlock> wordBlocks = [];
   late final SharedPreferences pref;
+  final GlobalKey _key = GlobalKey();
 
   void createBlocks() {
     List<String> words = text
@@ -98,6 +101,23 @@ class ChatBlock extends StatefulWidget {
     }
   }
 
+  Offset getOffsetForSelection(TextEditingValue value) {
+    final TextPainter painter = TextPainter(
+      text: TextSpan(
+        text: value.text,
+      ),
+      textDirection: ui.TextDirection.ltr,
+      textAlign: TextAlign.left,
+    );
+    painter.layout(maxWidth: _key.currentContext!.size!.width);
+    final double cursorOffset =
+        painter.getOffsetForCaret(value.selection.extent, ui.Rect.zero).dx;
+    final RenderBox renderBox =
+        _key.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset(cursorOffset, 0));
+    return offset;
+  }
+
   @override
   State<ChatBlock> createState() => _ChatBlockState();
 }
@@ -122,11 +142,9 @@ class _ChatBlockState extends State<ChatBlock> {
                 child: SelectableText.rich(
                   TextSpan(text: "", children: <InlineSpan>[
                     for (var wordBlock in widget.wordBlocks)
-                      wordBlock.createWidgetSpan(context)
+                      wordBlock.createWordBlock(context)
                   ]),
-                  onSelectionChanged: (selection, cause) {
-                    selectedText = selection.textInside(widget.text);
-                  },
+                  key: widget._key,
                   contextMenuBuilder: (context, editableTextState) {
                     final TextEditingValue value =
                         editableTextState.textEditingValue;
@@ -139,8 +157,6 @@ class _ChatBlockState extends State<ChatBlock> {
                           onPressed: () async {
                             final String insidedText =
                                 value.selection.textInside(value.text);
-
-                            print('단어저장:$selectedText');
                             await widget.saveFireWord(insidedText);
                             widget
                                 .doHighLight(); //즉각적인 핫로드를 위해 다시 한번 하이라이트 변수를 가져와 모든 wordBlock을 업데이트한다.
@@ -165,15 +181,12 @@ class _ChatBlockState extends State<ChatBlock> {
                         ContextMenuButtonItem(
                             label: "문장 번역",
                             onPressed: () async {
-                              final String insidedText =
-                                  value.selection.textInside(value.text);
-                              print(insidedText);
-                              // final renderBox =
-                              //     context.findRenderObject() as RenderBox;
-                              // Offset localZeroOffset =
-                              //     renderBox.localToGlobal(Offset.zero);
-                              // MakeOverlay.onTap(
-                              //     context, insidedText, localZeroOffset);
+                              Offset selectionOffset =
+                                  widget.getOffsetForSelection(value);
+                              MakeOverlay.onTap(
+                                  context,
+                                  value.selection.textInside(value.text),
+                                  selectionOffset);
                               setState(() {});
                               ContextMenuController.removeAny();
                             }));

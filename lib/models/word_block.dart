@@ -7,13 +7,8 @@ class WordBlock {
   bool isSelected = false;
   final String id;
   final Color backColor;
-  final TapGestureRecognizer _tapGestureRecognizer = TapGestureRecognizer();
 
-  WordBlock({required this.id, required this.backColor}) {
-    _tapGestureRecognizer.onTapDown = onTapWordBlock;
-  }
-
-  void onTapWordBlock(TapDownDetails details) {}
+  WordBlock({required this.id, required this.backColor});
 
   TextSpan createWordBlock(BuildContext context) {
     final TextSpan wordBlockTextSpan;
@@ -23,6 +18,10 @@ class WordBlock {
         color: Colors.black,
         backgroundColor: backColor,
       ),
+      recognizer: TapGestureRecognizer()
+        ..onTapDown = (TapDownDetails details) {
+          MakeOverlay.onTap(context, id, details.globalPosition);
+        },
     );
     //TextSpan을 감싸는 TextPainter를 생성한다.
 
