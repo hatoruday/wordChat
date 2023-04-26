@@ -195,49 +195,64 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            title: const Text(
-              "리딧",
-              style: TextStyle(color: Colors.black),
-            ),
-            actions: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/setting');
-                },
-                child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Icon(
-                      Icons.settings,
-                      color: Colors.black,
-                    )),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text(
+            "리딧",
+            style: TextStyle(color: Colors.black),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, '/setting');
+              },
+              child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Icon(
+                    Icons.settings,
+                    color: Colors.black,
+                  )),
+            )
+          ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Flexible(
+                child: ListView.builder(
+                  reverse: true,
+                  padding: Vx.m8,
+                  itemCount: _blocks.length,
+                  itemBuilder: (context, index) {
+                    ChatBlock chatblock = _blocks[index];
+                    return chatblock;
+                  },
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: context.cardColor,
+                ),
+                child: _buildTextComposer(),
               )
             ],
           ),
-          body: SafeArea(
-            child: Column(
-              children: [
-                Flexible(
-                  child: ListView.builder(
-                    reverse: true,
-                    padding: Vx.m8,
-                    itemCount: _blocks.length,
-                    itemBuilder: (context, index) {
-                      ChatBlock chatblock = _blocks[index];
-                      return chatblock;
-                    },
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: context.cardColor,
-                  ),
-                  child: _buildTextComposer(),
-                )
-              ],
-            ),
-          )),
+        ),
+        bottomNavigationBar: BottomNavigationBar(items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article),
+            label: "문장생성",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_box_outlined),
+            label: "단어장",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: "설정",
+          )
+        ]),
+      ),
     );
   }
 }

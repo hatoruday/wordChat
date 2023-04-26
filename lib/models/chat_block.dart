@@ -145,7 +145,7 @@ class _ChatBlockState extends State<ChatBlock> {
                       wordBlock.createWordBlock(context)
                   ]),
                   key: widget._key,
-                  contextMenuBuilder: (context, editableTextState) {
+                  contextMenuBuilder: (menuContext, editableTextState) {
                     final TextEditingValue value =
                         editableTextState.textEditingValue;
                     final List<ContextMenuButtonItem> buttonItems =
@@ -184,9 +184,10 @@ class _ChatBlockState extends State<ChatBlock> {
                               Offset selectionOffset =
                                   widget.getOffsetForSelection(value);
                               MakeOverlay.onTap(
-                                  context,
-                                  value.selection.textInside(value.text),
-                                  selectionOffset);
+                                  overLayContext: context,
+                                  tapSentence:
+                                      value.selection.textInside(value.text),
+                                  topLeftOffset: selectionOffset);
                               setState(() {});
                               ContextMenuController.removeAny();
                             }));

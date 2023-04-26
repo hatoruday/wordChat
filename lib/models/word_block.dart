@@ -19,8 +19,11 @@ class WordBlock {
         backgroundColor: backColor,
       ),
       recognizer: TapGestureRecognizer()
-        ..onTapDown = (TapDownDetails details) {
-          MakeOverlay.onTap(context, id, details.globalPosition);
+        ..onTapUp = (TapUpDetails details) {
+          MakeOverlay.onTap(
+              overLayContext: context,
+              tapWord: id,
+              topLeftOffset: details.globalPosition);
         },
     );
     //TextSpan을 감싸는 TextPainter를 생성한다.
@@ -31,11 +34,14 @@ class WordBlock {
   WidgetSpan createWidgetSpan(BuildContext context) {
     return WidgetSpan(
       child: GestureDetector(
-        onTap: () {
+        onTapDown: (TapDownDetails details) {
           final renderBox =
               wordKey.currentContext!.findRenderObject() as RenderBox;
           final topLeftOffset = renderBox.localToGlobal(Offset.zero);
-          MakeOverlay.onTap(context, id, topLeftOffset);
+          MakeOverlay.onTap(
+              overLayContext: context,
+              tapWord: id,
+              topLeftOffset: topLeftOffset);
         },
         child: Text(
           id,
