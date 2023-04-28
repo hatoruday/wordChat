@@ -1,4 +1,3 @@
-import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,13 +13,13 @@ class ReadItScreen extends StatefulWidget {
   const ReadItScreen({super.key});
 
   @override
-  State<ReadItScreen> createState() => _HomeScreenState();
+  State<ReadItScreen> createState() => _ReadItScreenState();
 }
 
-class _HomeScreenState extends State<ReadItScreen> {
+class _ReadItScreenState extends State<ReadItScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<ChatBlock> _blocks = [];
-  OpenAI? openAI;
+
   late bool isGenerating;
   int _selectedIndex = 0;
   //final ScrollController _scrollController = ScrollController();
@@ -55,15 +54,6 @@ class _HomeScreenState extends State<ReadItScreen> {
 
   @override
   void initState() {
-    openAI = OpenAI.instance.build(
-      token: "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",
-      baseOption: HttpSetup(
-        receiveTimeout: const Duration(
-          seconds: 60,
-        ),
-      ),
-      isLog: true,
-    );
     isGenerating = true;
     loadFireChat();
 

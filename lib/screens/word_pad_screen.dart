@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:milchat/models/fire_high_word.dart';
 import 'package:milchat/models/wordBox.dart';
 
 class WordPadScreen extends StatefulWidget {
@@ -10,7 +13,8 @@ class WordPadScreen extends StatefulWidget {
 
 class _WordPadScreenState extends State<WordPadScreen> {
   int _selectedIndex = 0;
-
+  late bool isGenerating = true;
+  List<FireHighWord> padWordObjectList = [];
   void changeIndex(int value) {
     if (_selectedIndex == value) {
       return;
@@ -45,6 +49,31 @@ class _WordPadScreenState extends State<WordPadScreen> {
   }
 
   @override
+  void initState() {
+    loadFireWord();
+    super.initState();
+  }
+
+  Future loadFireWord() async {
+    final userEmail = FirebaseAuth.instance.currentUser?.email;
+    final storeInstance = FirebaseFirestore.instance;
+    //highword를 firebase로부터 load한다.
+    final highWordQuarySnapShot = await storeInstance
+        .collection("HighWord")
+        .where("user", isEqualTo: userEmail)
+        .get();
+    final highWordDocs = highWordQuarySnapShot.docs;
+    //로드한 단어들을 ChatBlock의 static변수에 추가한다.
+    for (var element in highWordDocs) {
+      FireHighWord padWordObject = FireHighWord.fromJson(element.data());
+      padWordObjectList.add(padWordObject);
+    }
+    setState(() {
+      isGenerating = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     Map<String, dynamic> args =
         ModalRoute.of(context)?.settings.arguments as Map<String, Object>;
@@ -74,25 +103,39 @@ class _WordPadScreenState extends State<WordPadScreen> {
           ],
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              Center(
-                child: WordBox(),
-              ),
-            ],
-          ),
+          child: isGenerating
+              ? const CircularProgressIndicator()
+              : Column(
+                  children: [
+                    Flexible(
+                      child: ListView.builder(
+                          itemCount: padWordObjectList.length,
+                          itemBuilder: (context, index) {
+                            return WordBox(
+                              fireHighWordObject: padWordObjectList[index],
+                            );
+                          }),
+                    ),
+                  ],
+                ),
         ),
         bottomNavigationBar: BottomNavigationBar(
-          items: const [
+          backgroundColor: Colors.black,
+          unselectedItemColor: Colors.grey.shade700,
+          selectedItemColor: Colors.indigo.shade700,
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.article),
+              icon: Icon(
+                Icons.article,
+                color: Colors.grey.shade600,
+              ),
               label: "문장생성",
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(Icons.add_box_outlined),
               label: "단어장",
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: "설정",
             )

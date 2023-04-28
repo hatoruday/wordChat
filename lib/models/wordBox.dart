@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:milchat/models/fire_high_word.dart';
 
 class WordBox extends StatefulWidget {
   bool isShowed = false;
-  WordBox({super.key});
+  FireHighWord fireHighWordObject;
+  WordBox({
+    super.key,
+    required this.fireHighWordObject,
+  });
 
   @override
   State<WordBox> createState() => _WordBoxState();
@@ -12,7 +18,8 @@ class _WordBoxState extends State<WordBox> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double screenHeight = MediaQuery.of(context).size.height;
+    //final double screenHeight = MediaQuery.of(context).size.height;
+    final Map<String, dynamic> wordMap = widget.fireHighWordObject.toJson();
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -20,6 +27,7 @@ class _WordBoxState extends State<WordBox> {
         });
       },
       child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10),
         width: screenWidth * 0.9,
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
@@ -36,11 +44,12 @@ class _WordBoxState extends State<WordBox> {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.grey[50]),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     child: Text(
-                      "어려워요",
-                      style: TextStyle(fontSize: 10),
+                      wordMap['level'] ?? "어려워요",
+                      style: const TextStyle(fontSize: 10),
                     ),
                   ),
                 )
@@ -48,10 +57,10 @@ class _WordBoxState extends State<WordBox> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  "upset",
-                  style: TextStyle(
+                  wordMap['highWord'],
+                  style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 23,
                       color: Colors.white),
@@ -64,7 +73,7 @@ class _WordBoxState extends State<WordBox> {
                     child: Row(
                       children: [
                         Text(
-                          "화난",
+                          wordMap['wordMeaning'],
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
@@ -77,11 +86,19 @@ class _WordBoxState extends State<WordBox> {
                     height: 23,
                   ),
             Row(
-              children: const [
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 Text(
-                  "그룹 미지정",
-                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                  (wordMap['group'] == "none-selected"
+                          ? "그룹 미지정"
+                          : wordMap['group']) ??
+                      "그룹 미지정",
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
                 ),
+                const FaIcon(
+                  FontAwesomeIcons.volumeHigh,
+                  color: Colors.white,
+                )
               ],
             )
           ]),

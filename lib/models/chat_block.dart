@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:milchat/models/word_block.dart';
 import 'package:milchat/models/fire_high_word.dart';
+import 'package:milchat/services/api_services.dart';
 import 'package:milchat/services/overlay.dart';
 import 'package:milchat/test/storage_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,21 +62,26 @@ class ChatBlock extends StatefulWidget {
     }
   }
 
-  Future saveFireWord(String insidedText) async {
+  Future saveFireWord(
+      {required String insidedText, String? level, String? group}) async {
     try {
       String? user = FirebaseAuth.instance.currentUser?.email;
       DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+      String papagoResponse = await ApiService.getNaverResponse(insidedText);
       final highWord = FireHighWord(
         user: user!,
         highWord: insidedText,
+        wordMeaning: papagoResponse,
         date: dateFormat.format(DateTime.now()),
+        level: level ?? "어려워요",
+        group: group ?? "non-selected",
       );
       highlights.add(insidedText);
       CollectionReference collectionRef =
           FirebaseFirestore.instance.collection("HighWord");
       await collectionRef.add(highWord.toJson());
     } catch (e) {
-      showToast("setFireWord error");
+      showToast("saveFireWord error");
       showToast(e.toString());
     }
   }
@@ -157,7 +163,7 @@ class _ChatBlockState extends State<ChatBlock> {
                           onPressed: () async {
                             final String insidedText =
                                 value.selection.textInside(value.text);
-                            await widget.saveFireWord(insidedText);
+                            await widget.saveFireWord(insidedText: insidedText);
                             widget
                                 .doHighLight(); //즉각적인 핫로드를 위해 다시 한번 하이라이트 변수를 가져와 모든 wordBlock을 업데이트한다.
                             setState(() {}); //그리고 다시 스크린 빌드.
