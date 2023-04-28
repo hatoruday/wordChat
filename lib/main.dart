@@ -3,10 +3,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:milchat/screens/auth_screen.dart';
 import 'package:milchat/screens/category_screen.dart';
-import 'package:milchat/screens/home_screen.dart';
+import 'package:milchat/screens/readit_screen.dart';
 import 'package:milchat/screens/register_screen.dart';
 import 'package:milchat/screens/setting_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:milchat/screens/word_pad_screen.dart';
 import 'firebase_options.dart';
 
 showToast(String msg) {
@@ -38,11 +39,12 @@ class App extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/',
       routes: {
-        '/home': (context) => const HomeScreen(),
+        '/readIt': (context) => const ReadItScreen(),
         '/setting': (context) => const SettingScreen(),
         '/setting/category': (context) => CategoryScreen(),
         '/': (context) => const AuthForm(),
         '/register': (context) => const RegisterForm(),
+        '/wordPad': (context) => const WordPadScreen(),
       },
       debugShowCheckedModeBanner: false,
       title: "WordChat",

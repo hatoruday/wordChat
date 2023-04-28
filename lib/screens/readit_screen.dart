@@ -10,19 +10,48 @@ import 'package:milchat/test/storage_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class ReadItScreen extends StatefulWidget {
+  const ReadItScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<ReadItScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<ReadItScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<ChatBlock> _blocks = [];
   OpenAI? openAI;
   late bool isGenerating;
+  int _selectedIndex = 0;
   //final ScrollController _scrollController = ScrollController();
+  void changeIndex(int value) {
+    setState(() {
+      _selectedIndex = value;
+    });
+    switch (value) {
+      case 0:
+        {
+          Navigator.pushNamed(context, '/readIt', arguments: {
+            "selectedIndex": 0,
+          });
+          break;
+        }
+      case 1:
+        {
+          Navigator.pushNamed(context, '/wordPad', arguments: {
+            "selectedIndex": 1,
+          });
+          break;
+        }
+      case 2:
+        {
+          Navigator.pushNamed(context, '/wordPad', arguments: {
+            "selectedIndex": 1,
+          });
+          break;
+        }
+    }
+  }
 
   @override
   void initState() {
@@ -238,20 +267,26 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article),
-            label: "문장생성",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box_outlined),
-            label: "단어장",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: "설정",
-          )
-        ]),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.article),
+              label: "문장생성",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_box_outlined),
+              label: "단어장",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: "설정",
+            )
+          ],
+          currentIndex: _selectedIndex,
+          onTap: (value) {
+            changeIndex(value);
+          },
+        ),
       ),
     );
   }

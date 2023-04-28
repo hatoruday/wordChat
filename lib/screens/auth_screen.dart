@@ -26,7 +26,7 @@ class _AuthFormState extends State<AuthForm> {
           // setState(() {
           //   isInput = false;
           // });
-          Navigator.pushNamed(context, "/home"); //로그인되면 홈화면 이동한다.
+          Navigator.pushNamed(context, "/readIt"); //로그인되면 홈화면 이동한다.
         } else {
           showToast('emailVerified error');
         }
