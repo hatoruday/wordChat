@@ -102,10 +102,11 @@ class _WordPadScreenState extends State<WordPadScreen> {
             )
           ],
         ),
-        body: SafeArea(
-          child: isGenerating
-              ? const CircularProgressIndicator()
-              : Column(
+        body: isGenerating
+            ? const CircularProgressIndicator()
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
                   children: [
                     Flexible(
                       child: ListView.builder(
@@ -118,7 +119,7 @@ class _WordPadScreenState extends State<WordPadScreen> {
                     ),
                   ],
                 ),
-        ),
+              ),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.black,
           unselectedItemColor: Colors.grey.shade700,
