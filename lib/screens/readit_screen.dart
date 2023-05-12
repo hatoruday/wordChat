@@ -188,9 +188,20 @@ class _ReadItScreenState extends State<ReadItScreen> {
         : Row(children: [
             Expanded(
               child: TextField(
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
                 controller: _controller,
                 onSubmitted: (value) => _createChats(),
-                decoration: const InputDecoration.collapsed(
+                decoration: InputDecoration(
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 1, horizontal: 10),
+                  filled: true,
+                  fillColor: Colors.black,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: BorderSide(color: Colors.grey.shade700)),
                   hintText: "Send a Message",
                 ),
                 minLines: 1,
@@ -201,24 +212,28 @@ class _ReadItScreenState extends State<ReadItScreen> {
                 onPressed: () => _createChats(),
                 icon: const Icon(
                   Icons.send,
+                  color: Colors.white,
                 )),
             IconButton(
                 onPressed: () => createBlock(),
                 icon: const Icon(
                   Icons.ad_units,
+                  color: Colors.white,
                 )),
-          ]).px16();
+          ]).px12();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: Colors.black,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          centerTitle: false,
+          backgroundColor: Colors.black,
           title: const Text(
-            "리딧",
-            style: TextStyle(color: Colors.black),
+            "Read It!",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           actions: [
             GestureDetector(
@@ -229,7 +244,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 20.0),
                   child: Icon(
                     Icons.settings,
-                    color: Colors.black,
+                    color: Colors.white,
                   )),
             )
           ],
@@ -249,8 +264,9 @@ class _ReadItScreenState extends State<ReadItScreen> {
                 ),
               ),
               Container(
-                decoration: BoxDecoration(
-                  color: context.cardColor,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Colors.black,
                 ),
                 child: _buildTextComposer(),
               )
@@ -258,6 +274,9 @@ class _ReadItScreenState extends State<ReadItScreen> {
           ),
         ),
         bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.black,
+          unselectedItemColor: Colors.grey.shade700,
+          selectedItemColor: Colors.indigo.shade700,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.article),

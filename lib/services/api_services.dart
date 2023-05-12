@@ -62,7 +62,7 @@ class ApiService {
   //createText():
   Future makeChatResponse(String? justChat) async {
     String textRequest =
-        "Including a word of \"$selectedLight\", Please make short paragraphs excluding enumerating sentences with numbers about \"$selectedCategory\"";
+        "Including a word of \"$selectedLight\", Please make short paragraphs excluding enumerating sentences with numbers about \"$selectedCategory\" in english";
 
     return await fireCreateTexts(justChat ?? textRequest);
   }

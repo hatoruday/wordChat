@@ -136,11 +136,12 @@ class _ChatBlockState extends State<ChatBlock> {
       children: [
         Expanded(
           child: Container(
-              margin: const EdgeInsets.only(top: 5.0),
+              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               decoration: BoxDecoration(
+                  color: Colors.yellow,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: Colors.black,
+                    color: Colors.yellow,
                     width: 2,
                   )),
               child: Padding(

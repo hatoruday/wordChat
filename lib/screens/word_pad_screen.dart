@@ -97,7 +97,7 @@ class _WordPadScreenState extends State<WordPadScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 20.0),
                   child: Icon(
                     Icons.settings,
-                    color: Colors.black,
+                    color: Colors.white,
                   )),
             )
           ],
@@ -124,19 +124,18 @@ class _WordPadScreenState extends State<WordPadScreen> {
           backgroundColor: Colors.black,
           unselectedItemColor: Colors.grey.shade700,
           selectedItemColor: Colors.indigo.shade700,
-          items: [
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(
                 Icons.article,
-                color: Colors.grey.shade600,
               ),
               label: "문장생성",
             ),
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(Icons.add_box_outlined),
               label: "단어장",
             ),
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: "설정",
             )
