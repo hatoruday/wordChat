@@ -1,20 +1,24 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:milchat/models/fire_high_word.dart';
-import 'package:milchat/models/wordBox.dart';
+import 'package:milchat/models/blank_content.dart';
 
-class WordPadScreen extends StatefulWidget {
-  const WordPadScreen({super.key});
+class ContentScreen extends StatefulWidget {
+  const ContentScreen({super.key});
 
   @override
-  State<WordPadScreen> createState() => _WordPadScreenState();
+  State<ContentScreen> createState() => _ContentScreenState();
 }
 
-class _WordPadScreenState extends State<WordPadScreen> {
+class _ContentScreenState extends State<ContentScreen>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
-  late bool isGenerating = true;
-  List<FireHighWord> padWordObjectList = [];
+  late TabController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TabController(length: 3, vsync: this);
+  }
+
   void changeIndex(int value) {
     if (_selectedIndex == value) {
       return;
@@ -57,31 +61,6 @@ class _WordPadScreenState extends State<WordPadScreen> {
   }
 
   @override
-  void initState() {
-    loadFireWord();
-    super.initState();
-  }
-
-  Future loadFireWord() async {
-    final userEmail = FirebaseAuth.instance.currentUser?.email;
-    final storeInstance = FirebaseFirestore.instance;
-    //highword를 firebase로부터 load한다.
-    final highWordQuarySnapShot = await storeInstance
-        .collection("HighWord")
-        .where("user", isEqualTo: userEmail)
-        .get();
-    final highWordDocs = highWordQuarySnapShot.docs;
-    //로드한 단어들을 ChatBlock의 static변수에 추가한다.
-    for (var element in highWordDocs) {
-      FireHighWord padWordObject = FireHighWord.fromJson(element.data());
-      padWordObjectList.add(padWordObject);
-    }
-    setState(() {
-      isGenerating = false;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     Map<String, dynamic> args =
         ModalRoute.of(context)?.settings.arguments as Map<String, Object>;
@@ -94,7 +73,7 @@ class _WordPadScreenState extends State<WordPadScreen> {
           centerTitle: false,
           backgroundColor: Colors.black,
           title: const Text(
-            "단어장",
+            "Read It!",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           actions: [
@@ -110,25 +89,26 @@ class _WordPadScreenState extends State<WordPadScreen> {
                   )),
             )
           ],
-        ),
-        body: isGenerating
-            ? const CircularProgressIndicator()
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    Flexible(
-                      child: ListView.builder(
-                          itemCount: padWordObjectList.length,
-                          itemBuilder: (context, index) {
-                            return WordBox(
-                              fireHighWordObject: padWordObjectList[index],
-                            );
-                          }),
-                    ),
-                  ],
-                ),
+          bottom: TabBar(
+            controller: controller,
+            tabs: const <Widget>[
+              Tab(
+                text: '빈칸 맞추기',
               ),
+              Tab(
+                text: 'second',
+              ),
+              Tab(
+                text: 'third',
+              ),
+            ],
+          ),
+        ),
+        body: TabBarView(controller: controller, children: const <Widget>[
+          BlankContent(),
+          Center(),
+          Center(),
+        ]),
         bottomNavigationBar: Container(
           decoration: const BoxDecoration(color: Colors.black),
           child: BottomNavigationBar(

@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:milchat/screens/auth_screen.dart';
 import 'package:milchat/screens/category_screen.dart';
+import 'package:milchat/screens/content_screen.dart';
 import 'package:milchat/screens/readit_screen.dart';
 import 'package:milchat/screens/register_screen.dart';
 import 'package:milchat/screens/setting_screen.dart';
@@ -45,6 +46,7 @@ class App extends StatelessWidget {
         '/': (context) => const AuthForm(),
         '/register': (context) => const RegisterForm(),
         '/wordPad': (context) => const WordPadScreen(),
+        '/content': (context) => const ContentScreen(),
       },
       debugShowCheckedModeBanner: false,
       title: "WordChat",

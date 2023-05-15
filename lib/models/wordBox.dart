@@ -35,14 +35,14 @@ class _WordBoxState extends State<WordBox> {
 
     //로드한 단어들을 ChatBlock의 static변수에 추가한다.
     for (QueryDocumentSnapshot documentSnapshot in listQuaryDocumentSnapshot) {
-      FireHighWord wordObject = FireHighWord.fromJson(
+      FireHighWord wordToEditObject = FireHighWord.fromJson(
           documentSnapshot.data() as Map<String, dynamic>);
-      wordObject.level = wordLevel;
+      wordToEditObject.level = wordLevel;
       DocumentReference docRefs =
           storeInstance.collection("HighWord").doc(documentSnapshot.id);
-      docRefs.update(wordObject.toJson());
+      docRefs.update(wordToEditObject.toJson());
     }
-
+    widget.fireHighWordObject.level = wordLevel;
     setState(() {});
   }
 
@@ -51,6 +51,18 @@ class _WordBoxState extends State<WordBox> {
     final double screenWidth = MediaQuery.of(context).size.width;
     //final double screenHeight = MediaQuery.of(context).size.height;
     final Map<String, dynamic> wordMap = widget.fireHighWordObject.toJson();
+    Color? levelColor;
+    switch (wordMap['level']) {
+      case "어려워요":
+        levelColor = Colors.red.shade300;
+        break;
+      case "애매해요":
+        levelColor = Colors.orange;
+        break;
+      case "외웠어요":
+        levelColor = Colors.green.shade300;
+        break;
+    }
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -78,12 +90,12 @@ class _WordBoxState extends State<WordBox> {
                   child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey[50]),
+                        color: levelColor ?? Colors.grey),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 7, vertical: 3),
                       child: Text(
-                        wordMap['level'] ?? "어려워요",
+                        wordMap['level'] ?? "default",
                         style: const TextStyle(fontSize: 10),
                       ),
                     ),

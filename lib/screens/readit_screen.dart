@@ -24,9 +24,13 @@ class _ReadItScreenState extends State<ReadItScreen> {
   int _selectedIndex = 0;
   //final ScrollController _scrollController = ScrollController();
   void changeIndex(int value) {
+    if (_selectedIndex == value) {
+      return;
+    }
     setState(() {
       _selectedIndex = value;
     });
+
     switch (value) {
       case 0:
         {
@@ -43,6 +47,14 @@ class _ReadItScreenState extends State<ReadItScreen> {
           break;
         }
       case 2:
+        {
+          Navigator.pushNamed(context, '/content', arguments: {
+            "selectedIndex": 2,
+          });
+          break;
+        }
+
+      case 3:
         {
           Navigator.pushNamed(context, '/wordPad', arguments: {
             "selectedIndex": 1,
@@ -181,7 +193,10 @@ class _ReadItScreenState extends State<ReadItScreen> {
               Expanded(
                   child: Padding(
                 padding: EdgeInsets.all(20),
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(
+                    child: CircularProgressIndicator(
+                  color: Colors.white,
+                )),
               ))
             ],
           )
@@ -195,15 +210,22 @@ class _ReadItScreenState extends State<ReadItScreen> {
                 controller: _controller,
                 onSubmitted: (value) => _createChats(),
                 decoration: InputDecoration(
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 1, horizontal: 10),
-                  filled: true,
-                  fillColor: Colors.black,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide(color: Colors.grey.shade700)),
-                  hintText: "Send a Message",
-                ),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide:
+                            BorderSide(color: Colors.grey.shade700, width: 2)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide:
+                            BorderSide(color: Colors.grey.shade700, width: 2)),
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 1, horizontal: 10),
+                    //filled: true,
+                    //fillColor: Colors.black,
+                    hintText: "Send a Message",
+                    hintStyle: const TextStyle(
+                      color: Colors.white,
+                    )),
                 minLines: 1,
                 maxLines: 3,
               ),
@@ -226,6 +248,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(canvasColor: Colors.black),
       home: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
@@ -273,28 +296,34 @@ class _ReadItScreenState extends State<ReadItScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.black,
-          unselectedItemColor: Colors.grey.shade700,
-          selectedItemColor: Colors.indigo.shade700,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.article),
-              label: "문장생성",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.add_box_outlined),
-              label: "단어장",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: "설정",
-            )
-          ],
-          currentIndex: _selectedIndex,
-          onTap: (value) {
-            changeIndex(value);
-          },
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(color: Colors.black),
+          child: BottomNavigationBar(
+            unselectedItemColor: Colors.grey.shade700,
+            selectedItemColor: Colors.indigo.shade700,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.article),
+                label: "문장생성",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.add_box_outlined),
+                label: "단어장",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.play_circle_outlined),
+                label: "컨텐츠",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: "설정",
+              )
+            ],
+            currentIndex: _selectedIndex,
+            onTap: (value) {
+              changeIndex(value);
+            },
+          ),
         ),
       ),
     );
