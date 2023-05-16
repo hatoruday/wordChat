@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:milchat/models/chat_block.dart';
+import 'package:milchat/screens/ReadIt/chat_block.dart';
 import 'package:milchat/models/fire_chat_block.dart';
 import 'package:milchat/services/api_services.dart';
 import 'package:milchat/test/storage_test.dart';
@@ -122,7 +122,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
       await collectionRef.add(highWord.toJson());
     } catch (e) {
       showToast("saveFireChat error");
-      print(e);
+      //print(e);
     }
   }
 

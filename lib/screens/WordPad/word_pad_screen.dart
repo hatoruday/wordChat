@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:milchat/models/fire_high_word.dart';
-import 'package:milchat/models/wordBox.dart';
+import 'package:milchat/screens/WordPad/wordBox.dart';
 
 class WordPadScreen extends StatefulWidget {
   const WordPadScreen({super.key});
@@ -112,7 +112,7 @@ class _WordPadScreenState extends State<WordPadScreen> {
           ],
         ),
         body: isGenerating
-            ? const CircularProgressIndicator()
+            ? const Center(child: CircularProgressIndicator())
             : Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(

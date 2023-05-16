@@ -74,7 +74,7 @@ class TrnaslateBlock extends StatelessWidget {
             Transform.scale(
                 scale: 1.0,
                 child: Transform.translate(
-                    offset: const Offset(0, 0), child: image))
+                    offset: const Offset(10, 0), child: image))
           ],
         ),
       ),

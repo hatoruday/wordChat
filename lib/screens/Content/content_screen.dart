@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:milchat/models/blank_content.dart';
+import 'package:milchat/screens/Content/blank_question.dart';
 
 class ContentScreen extends StatefulWidget {
   const ContentScreen({super.key});
@@ -62,6 +62,7 @@ class _ContentScreenState extends State<ContentScreen>
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     Map<String, dynamic> args =
         ModalRoute.of(context)?.settings.arguments as Map<String, Object>;
     _selectedIndex = args["selectedIndex"];
@@ -73,7 +74,7 @@ class _ContentScreenState extends State<ContentScreen>
           centerTitle: false,
           backgroundColor: Colors.black,
           title: const Text(
-            "Read It!",
+            "컨텐츠",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           actions: [
@@ -104,10 +105,12 @@ class _ContentScreenState extends State<ContentScreen>
             ],
           ),
         ),
-        body: TabBarView(controller: controller, children: const <Widget>[
-          BlankContent(),
-          Center(),
-          Center(),
+        body: TabBarView(controller: controller, children: <Widget>[
+          BlankQuestion(
+            screenWidth: screenWidth,
+          ),
+          const Center(),
+          const Center(),
         ]),
         bottomNavigationBar: Container(
           decoration: const BoxDecoration(color: Colors.black),

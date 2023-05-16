@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:milchat/models/category_box.dart';
+import 'package:milchat/screens/Category/category_box.dart';
 
 class CategoryScreen extends StatelessWidget {
   CategoryScreen({super.key});

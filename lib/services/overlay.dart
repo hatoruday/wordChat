@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:milchat/models/Translate_block.dart';
+import 'package:milchat/screens/ReadIt/translate_block.dart';
 import 'package:milchat/services/api_services.dart';
 
 class MakeOverlay {
