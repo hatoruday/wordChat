@@ -30,21 +30,21 @@ class _ContentScreenState extends State<ContentScreen>
     switch (value) {
       case 0:
         {
-          Navigator.pushNamed(context, '/readIt', arguments: {
+          Navigator.pushReplacementNamed(context, '/readIt', arguments: {
             "selectedIndex": 0,
           });
           break;
         }
       case 1:
         {
-          Navigator.pushNamed(context, '/wordPad', arguments: {
+          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
             "selectedIndex": 1,
           });
           break;
         }
       case 2:
         {
-          Navigator.pushNamed(context, '/content', arguments: {
+          Navigator.pushReplacementNamed(context, '/content', arguments: {
             "selectedIndex": 2,
           });
           break;
@@ -52,7 +52,7 @@ class _ContentScreenState extends State<ContentScreen>
 
       case 3:
         {
-          Navigator.pushNamed(context, '/wordPad', arguments: {
+          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
             "selectedIndex": 1,
           });
           break;

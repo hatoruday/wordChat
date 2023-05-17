@@ -1,24 +1,24 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:milchat/models/word_block.dart';
+import 'package:milchat/screens/ReadIt/word_block.dart';
 import 'package:milchat/models/fire_high_word.dart';
-import 'package:milchat/services/api_services.dart';
 import 'package:milchat/services/overlay.dart';
-import 'package:milchat/test/storage_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui' as ui;
 
 class ChatBlock extends StatefulWidget {
-  ChatBlock({super.key, required this.text, required this.sender}) {
+  ChatBlock({
+    super.key,
+    required this.text,
+    required this.sender,
+    required this.adjusting,
+  }) {
     createBlocks(); //챗블록 클래스가 생성되고, 매개변수로 받아온 text로 단어 리스트로 변환하고,
     //단어 하나하나마다 wordBlock으로 초기화한 후, wordBlocks리스트에 추가한다.
     //initPref(); //chatblock인스턴스가 생기자마자, prefs객체를 생성하고, wordlist의 값을 받아와 highlight변수에 저장한다.
-    doHighLight(); //그리고 dohighlight를 불러오고,
   }
 
-  static Set<String> highlights = {};
+  static final Set<String> highlights = {};
+  final Function adjusting;
   final String text;
   final String sender;
   final List<WordBlock> wordBlocks = [];
@@ -37,73 +37,6 @@ class ChatBlock extends StatefulWidget {
         backColor: Colors.transparent,
       );
       wordBlocks.add(original);
-    }
-  }
-
-  void doHighLight() {
-    for (var light in highlights) {
-      for (var i = 0; i < wordBlocks.length; i++) {
-        if (wordBlocks[i].id == light) {
-          WordBlock block = WordBlock(
-              id: wordBlocks[i].id, backColor: Colors.yellow.shade200);
-          wordBlocks[i] = block;
-        }
-      }
-    }
-  }
-
-  void removeHighLight(String removedWord) {
-    for (var i = 0; i < wordBlocks.length; i++) {
-      if (wordBlocks[i].id == removedWord) {
-        WordBlock block =
-            WordBlock(id: wordBlocks[i].id, backColor: Colors.transparent);
-        wordBlocks[i] = block;
-      }
-    }
-  }
-
-  Future saveFireWord(
-      {required String insidedText, String? level, String? group}) async {
-    try {
-      String? user = FirebaseAuth.instance.currentUser?.email;
-      DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
-      String papagoResponse = await ApiService.getNaverResponse(insidedText);
-      final highWord = FireHighWord(
-        user: user!,
-        highWord: insidedText,
-        wordMeaning: papagoResponse,
-        date: dateFormat.format(DateTime.now()),
-        level: level ?? "어려워요",
-        group: group ?? "non-selected",
-      );
-      highlights.add(insidedText);
-      CollectionReference collectionRef =
-          FirebaseFirestore.instance.collection("HighWord");
-      await collectionRef.add(highWord.toJson());
-    } catch (e) {
-      showToast("saveFireWord error");
-      showToast(e.toString());
-    }
-  }
-
-  Future deleteFireWord(String insidedText) async {
-    try {
-      String? user = FirebaseAuth.instance.currentUser?.email;
-
-      CollectionReference collectionRef =
-          FirebaseFirestore.instance.collection("HighWord");
-      QuerySnapshot fireWordDocRef = await collectionRef
-          .where("highWord", isEqualTo: insidedText)
-          .where("user", isEqualTo: user)
-          .get();
-      for (var quarydocumentsnapshot in fireWordDocRef.docs) {
-        quarydocumentsnapshot.reference.delete();
-      }
-      highlights.remove(insidedText);
-      removeHighLight(insidedText);
-    } catch (e) {
-      showToast("deleteFireWord error");
-      showToast("deleteFireWordError$e");
     }
   }
 
@@ -130,6 +63,12 @@ class ChatBlock extends StatefulWidget {
 
 class _ChatBlockState extends State<ChatBlock> {
   String selectedText = '';
+  @override
+  void initState() {
+    FireHighWord.doHighLight(); //그리고 dohighlight를 불러오고,
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -164,11 +103,12 @@ class _ChatBlockState extends State<ChatBlock> {
                           onPressed: () async {
                             final String insidedText =
                                 value.selection.textInside(value.text);
-                            await widget.saveFireWord(insidedText: insidedText);
-                            widget
-                                .doHighLight(); //즉각적인 핫로드를 위해 다시 한번 하이라이트 변수를 가져와 모든 wordBlock을 업데이트한다.
-                            setState(() {}); //그리고 다시 스크린 빌드.
+                            await FireHighWord.saveFireWord(
+                                insidedText: insidedText);
+                            FireHighWord.doHighLight();
                             ContextMenuController.removeAny();
+                            setState(() {});
+                            widget.adjusting();
                           },
                         ));
 
@@ -179,9 +119,11 @@ class _ChatBlockState extends State<ChatBlock> {
                             onPressed: () async {
                               final String insidedText =
                                   value.selection.textInside(value.text);
-                              await widget.deleteFireWord(insidedText);
+                              await FireHighWord.deleteFireWord(insidedText);
+                              FireHighWord.removeHighLight(insidedText);
                               setState(() {});
                               ContextMenuController.removeAny();
+                              widget.adjusting();
                             }));
                     buttonItems.insert(
                         2,

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:milchat/screens/ReadIt/build_text_composer.dart';
 import 'package:milchat/screens/ReadIt/chat_block.dart';
 import 'package:milchat/models/fire_chat_block.dart';
 import 'package:milchat/services/api_services.dart';
@@ -11,6 +12,24 @@ import 'package:velocity_x/velocity_x.dart';
 
 class ReadItScreen extends StatefulWidget {
   const ReadItScreen({super.key});
+  static List<ChatBlock> blocks = [];
+
+  static Future saveFireChat(String responsetext) async {
+    try {
+      String? user = FirebaseAuth.instance.currentUser?.email;
+      DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+      final highWord = FireChatBlock(
+        user: user!,
+        chatBlock: responsetext,
+        date: dateFormat.format(DateTime.now()),
+      );
+      CollectionReference collectionRef =
+          FirebaseFirestore.instance.collection("ChatBlock");
+      await collectionRef.add(highWord.toJson());
+    } catch (e) {
+      showToast("saveFireChat error");
+    }
+  }
 
   @override
   State<ReadItScreen> createState() => _ReadItScreenState();
@@ -18,8 +37,7 @@ class ReadItScreen extends StatefulWidget {
 
 class _ReadItScreenState extends State<ReadItScreen> {
   final TextEditingController _controller = TextEditingController();
-  final List<ChatBlock> _blocks = [];
-
+  Color testColor = Colors.black;
   late bool isGenerating;
   int _selectedIndex = 0;
   //final ScrollController _scrollController = ScrollController();
@@ -34,21 +52,22 @@ class _ReadItScreenState extends State<ReadItScreen> {
     switch (value) {
       case 0:
         {
-          Navigator.pushNamed(context, '/readIt', arguments: {
+          Navigator.pushReplacementNamed(context, '/readIt', arguments: {
             "selectedIndex": 0,
           });
+          Navigator.pop(context);
           break;
         }
       case 1:
         {
-          Navigator.pushNamed(context, '/wordPad', arguments: {
+          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
             "selectedIndex": 1,
           });
           break;
         }
       case 2:
         {
-          Navigator.pushNamed(context, '/content', arguments: {
+          Navigator.pushReplacementNamed(context, '/content', arguments: {
             "selectedIndex": 2,
           });
           break;
@@ -56,7 +75,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
 
       case 3:
         {
-          Navigator.pushNamed(context, '/wordPad', arguments: {
+          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
             "selectedIndex": 1,
           });
           break;
@@ -66,18 +85,17 @@ class _ReadItScreenState extends State<ReadItScreen> {
 
   @override
   void initState() {
-    isGenerating = true;
-    loadFireChat();
+    isGenerating = false;
+    if (ReadItScreen.blocks.isEmpty) {
+      isGenerating = true;
+      loadFireChat();
+    }
 
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Future loadFireChat() async {
+    setState(() {});
     final userEmail = FirebaseAuth.instance.currentUser?.email;
     final storeInstance = FirebaseFirestore.instance;
     //highword를 firebase로부터 load한다.
@@ -99,31 +117,16 @@ class _ReadItScreenState extends State<ReadItScreen> {
         .get();
     final chatBlockDocs = chatBlockQuarySnapShot.docs;
     for (var element in chatBlockDocs) {
-      ChatBlock botMessage =
-          ChatBlock(text: element.get("chatBlock"), sender: "bot");
-      _blocks.insert(0, botMessage);
+      ChatBlock botMessage = ChatBlock(
+        text: element.get("chatBlock"),
+        sender: "bot",
+        adjusting: adjusting,
+      );
+      ReadItScreen.blocks.insert(0, botMessage);
     }
     setState(() {
       isGenerating = false;
     });
-  }
-
-  Future saveFireChat(String responsetext) async {
-    try {
-      String? user = FirebaseAuth.instance.currentUser?.email;
-      DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
-      final highWord = FireChatBlock(
-        user: user!,
-        chatBlock: responsetext,
-        date: dateFormat.format(DateTime.now()),
-      );
-      CollectionReference collectionRef =
-          FirebaseFirestore.instance.collection("ChatBlock");
-      await collectionRef.add(highWord.toJson());
-    } catch (e) {
-      showToast("saveFireChat error");
-      //print(e);
-    }
   }
 
   void createBlock() async {
@@ -158,15 +161,20 @@ class _ReadItScreenState extends State<ReadItScreen> {
     String fireResponseMessage =
         await service.makeChatResponse(null); //응답을 텍스트로 받아온다.
 
-    await saveFireChat(fireResponseMessage); //응답을 firebase document내에 저장한다.
-    ChatBlock botMessage = ChatBlock(text: fireResponseMessage, sender: "bot");
+    await ReadItScreen.saveFireChat(
+        fireResponseMessage); //응답을 firebase document내에 저장한다.
+    ChatBlock botMessage = ChatBlock(
+      text: fireResponseMessage,
+      sender: "bot",
+      adjusting: adjusting,
+    );
     setState(() {
-      _blocks.insert(0, botMessage);
+      ReadItScreen.blocks.insert(0, botMessage);
       isGenerating = false;
     });
   }
 
-  void _createChats() async {
+  void createChats() async {
     setState(() {
       isGenerating = true;
     });
@@ -178,71 +186,23 @@ class _ReadItScreenState extends State<ReadItScreen> {
     // ChatBlock block = ChatBlock(text: textRequest, sender: "user");
     //_blocks.insert(0, block);
 
-    await saveFireChat(fireResponseMessage); //응답을 firebase document내에 저장한다.
-    ChatBlock botMessage = ChatBlock(text: fireResponseMessage, sender: "bot");
+    await ReadItScreen.saveFireChat(
+        fireResponseMessage); //응답을 firebase document내에 저장한다.
+    ChatBlock botMessage = ChatBlock(
+      text: fireResponseMessage,
+      sender: "bot",
+      adjusting: adjusting,
+    );
     setState(() {
-      _blocks.insert(0, botMessage);
+      ReadItScreen.blocks.insert(0, botMessage);
       isGenerating = false;
     });
   }
 
-  Widget _buildTextComposer() {
-    return isGenerating
-        ? Row(
-            children: const [
-              Expanded(
-                  child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Center(
-                    child: CircularProgressIndicator(
-                  color: Colors.white,
-                )),
-              ))
-            ],
-          )
-        : Row(children: [
-            Expanded(
-              child: TextField(
-                style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-                controller: _controller,
-                onSubmitted: (value) => _createChats(),
-                decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide:
-                            BorderSide(color: Colors.grey.shade700, width: 2)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide:
-                            BorderSide(color: Colors.grey.shade700, width: 2)),
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 1, horizontal: 10),
-                    //filled: true,
-                    //fillColor: Colors.black,
-                    hintText: "Send a Message",
-                    hintStyle: const TextStyle(
-                      color: Colors.white,
-                    )),
-                minLines: 1,
-                maxLines: 3,
-              ),
-            ),
-            IconButton(
-                onPressed: () => _createChats(),
-                icon: const Icon(
-                  Icons.send,
-                  color: Colors.white,
-                )),
-            IconButton(
-                onPressed: () => createBlock(),
-                icon: const Icon(
-                  Icons.ad_units,
-                  color: Colors.white,
-                )),
-          ]).px12();
+  void adjusting() {
+    setState(() {
+      testColor = testColor == Colors.black ? Colors.white : Colors.black;
+    });
   }
 
   @override
@@ -253,7 +213,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
         backgroundColor: Colors.black,
         appBar: AppBar(
           centerTitle: false,
-          backgroundColor: Colors.black,
+          backgroundColor: testColor,
           title: const Text(
             "Read It!",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -279,9 +239,9 @@ class _ReadItScreenState extends State<ReadItScreen> {
                 child: ListView.builder(
                   reverse: true,
                   padding: Vx.m8,
-                  itemCount: _blocks.length,
+                  itemCount: ReadItScreen.blocks.length,
                   itemBuilder: (context, index) {
-                    ChatBlock chatblock = _blocks[index];
+                    ChatBlock chatblock = ReadItScreen.blocks[index];
                     return chatblock;
                   },
                 ),
@@ -289,9 +249,14 @@ class _ReadItScreenState extends State<ReadItScreen> {
               Container(
                 height: 40,
                 decoration: const BoxDecoration(
-                  color: Colors.black,
+                  color: Colors.transparent,
                 ),
-                child: _buildTextComposer(),
+                child: BuildTextComposer(
+                  controller: _controller,
+                  createBlock: createBlock,
+                  createChats: createChats,
+                  isGenerating: isGenerating,
+                ),
               )
             ],
           ),

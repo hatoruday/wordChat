@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:milchat/screens/Content/question_answer.dart';
 
 class BlankQuestion extends StatefulWidget {
   double screenWidth;
@@ -14,19 +15,24 @@ class _BlankQuestionState extends State<BlankQuestion> {
     double containerWidth = MediaQuery.of(context).size.width;
     return Column(
       children: [
-        Row(
-          children: const [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              child: Text(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10),
+          child: Row(
+            children: const [
+              Icon(
+                Icons.arrow_right_sharp,
+                color: Colors.white,
+                size: 40,
+              ),
+              Text(
                 "질의응답형",
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 30,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
         Container(
           clipBehavior: Clip.hardEdge,
@@ -102,6 +108,13 @@ class _BlankQuestionState extends State<BlankQuestion> {
             ],
           ),
         ),
+        const SizedBox(
+          height: 20,
+        ),
+        QuestionAnswer(answerText: "Coffee"),
+        QuestionAnswer(answerText: "kimchi"),
+        QuestionAnswer(answerText: "pizza"),
+        QuestionAnswer(answerText: "chocolate")
       ],
     );
   }
