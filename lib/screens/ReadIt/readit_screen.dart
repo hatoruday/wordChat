@@ -13,7 +13,7 @@ import 'package:velocity_x/velocity_x.dart';
 class ReadItScreen extends StatefulWidget {
   const ReadItScreen({super.key});
   static List<ChatBlock> blocks = [];
-
+  static final Set<String> highlights = {};
   static Future saveFireChat(String responsetext) async {
     try {
       String? user = FirebaseAuth.instance.currentUser?.email;
@@ -106,7 +106,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
     final highWordDocs = highWordQuarySnapShot.docs;
     //로드한 단어들을 ChatBlock의 static변수에 추가한다.
     for (var element in highWordDocs) {
-      ChatBlock.highlights.add(element.get("highWord"));
+      ReadItScreen.highlights.add(element.get("highWord"));
     }
 
     //firebase에 저장된 chatblock을 가져온다.
@@ -121,6 +121,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
         text: element.get("chatBlock"),
         sender: "bot",
         adjusting: adjusting,
+        highlights: ReadItScreen.highlights,
       );
       ReadItScreen.blocks.insert(0, botMessage);
     }
@@ -143,8 +144,8 @@ class _ReadItScreenState extends State<ReadItScreen> {
     }
     //highlights 중 하나를 뽑는다.
     String selectedLight;
-    if (ChatBlock.highlights.isNotEmpty) {
-      selectedLight = ChatBlock.highlights.pickOne();
+    if (ReadItScreen.highlights.isNotEmpty) {
+      selectedLight = ReadItScreen.highlights.pickOne();
     } else {
       selectedLight = "any";
     }
@@ -167,6 +168,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
       text: fireResponseMessage,
       sender: "bot",
       adjusting: adjusting,
+      highlights: ReadItScreen.highlights,
     );
     setState(() {
       ReadItScreen.blocks.insert(0, botMessage);
@@ -192,6 +194,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
       text: fireResponseMessage,
       sender: "bot",
       adjusting: adjusting,
+      highlights: ReadItScreen.highlights,
     );
     setState(() {
       ReadItScreen.blocks.insert(0, botMessage);
@@ -199,10 +202,15 @@ class _ReadItScreenState extends State<ReadItScreen> {
     });
   }
 
-  void adjusting() {
-    setState(() {
-      testColor = testColor == Colors.black ? Colors.white : Colors.black;
-    });
+  void adjusting({
+    required bool isDo,
+    String? wordToRemeve,
+  }) {
+    if (isDo) {
+      setState(() {});
+    } else {
+      setState(() {});
+    }
   }
 
   @override

@@ -11,13 +11,13 @@ class ChatBlock extends StatefulWidget {
     required this.text,
     required this.sender,
     required this.adjusting,
+    required this.highlights,
   }) {
-    createBlocks(); //챗블록 클래스가 생성되고, 매개변수로 받아온 text로 단어 리스트로 변환하고,
+    createBlocks(); //처음 메모리에 이 클래스가 생성됐을때 실행되는 생성자 내 함수 작성.
     //단어 하나하나마다 wordBlock으로 초기화한 후, wordBlocks리스트에 추가한다.
     //initPref(); //chatblock인스턴스가 생기자마자, prefs객체를 생성하고, wordlist의 값을 받아와 highlight변수에 저장한다.
   }
-
-  static final Set<String> highlights = {};
+  final Set<String> highlights;
   final Function adjusting;
   final String text;
   final String sender;
@@ -26,17 +26,33 @@ class ChatBlock extends StatefulWidget {
   final GlobalKey _key = GlobalKey();
 
   void createBlocks() {
+    wordBlocks.clear();
+    print(highlights);
     List<String> words = text
         .trimLeft()
         .split(RegExp(r'(?<=[ ,.])|(?=[ ,.])'))
         .where((word) => word.isNotEmpty)
         .toList(); // 리스트에 모든 토큰이 담기게 된다.
+
     for (var word in words) {
-      WordBlock original = WordBlock(
-        id: word,
-        backColor: Colors.transparent,
-      );
-      wordBlocks.add(original);
+      WordBlock? wordToPut;
+      for (var light in highlights) {
+        if (light == word) {
+          WordBlock highedBlock = WordBlock(
+              id: light,
+              backColor: Colors.indigo.shade200,
+              textColor: Colors.white);
+          wordToPut = highedBlock;
+          break;
+        } else {
+          WordBlock original = WordBlock(
+            id: word,
+            backColor: Colors.transparent,
+          );
+          wordToPut = original;
+        }
+      }
+      wordBlocks.add(wordToPut!);
     }
   }
 
@@ -65,7 +81,7 @@ class _ChatBlockState extends State<ChatBlock> {
   String selectedText = '';
   @override
   void initState() {
-    FireHighWord.doHighLight(); //그리고 dohighlight를 불러오고,
+    widget.createBlocks();
     super.initState();
   }
 
@@ -105,10 +121,9 @@ class _ChatBlockState extends State<ChatBlock> {
                                 value.selection.textInside(value.text);
                             await FireHighWord.saveFireWord(
                                 insidedText: insidedText);
-                            FireHighWord.doHighLight();
                             ContextMenuController.removeAny();
                             setState(() {});
-                            widget.adjusting();
+                            //widget.adjusting(isDo: true);
                           },
                         ));
 
@@ -120,11 +135,13 @@ class _ChatBlockState extends State<ChatBlock> {
                               final String insidedText =
                                   value.selection.textInside(value.text);
                               await FireHighWord.deleteFireWord(insidedText);
-                              FireHighWord.removeHighLight(insidedText);
-                              setState(() {});
+
                               ContextMenuController.removeAny();
-                              widget.adjusting();
+                              setState(() {});
+                              // widget.adjusting(
+                              //     isDo: false, wordToRemove: insidedText);
                             }));
+
                     buttonItems.insert(
                         2,
                         ContextMenuButtonItem(
