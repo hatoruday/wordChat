@@ -11,8 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class ReadItScreen extends StatefulWidget {
-  const ReadItScreen({super.key});
-  static List<ChatBlock> blocks = [];
+  ReadItScreen({super.key});
+  List<ChatBlock> blocks = [];
   static final Set<String> highlights = {};
   static Future saveFireChat(String responsetext) async {
     try {

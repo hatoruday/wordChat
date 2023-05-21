@@ -13,6 +13,7 @@ class ChatBlock extends StatefulWidget {
     required this.adjusting,
     required this.highlights,
   }) {
+    print("생성됨.");
     createBlocks(); //처음 메모리에 이 클래스가 생성됐을때 실행되는 생성자 내 함수 작성.
     //단어 하나하나마다 wordBlock으로 초기화한 후, wordBlocks리스트에 추가한다.
     //initPref(); //chatblock인스턴스가 생기자마자, prefs객체를 생성하고, wordlist의 값을 받아와 highlight변수에 저장한다.
@@ -27,7 +28,7 @@ class ChatBlock extends StatefulWidget {
 
   void createBlocks() {
     wordBlocks.clear();
-    print(highlights);
+
     List<String> words = text
         .trimLeft()
         .split(RegExp(r'(?<=[ ,.])|(?=[ ,.])'))
@@ -122,8 +123,8 @@ class _ChatBlockState extends State<ChatBlock> {
                             await FireHighWord.saveFireWord(
                                 insidedText: insidedText);
                             ContextMenuController.removeAny();
-                            setState(() {});
-                            //widget.adjusting(isDo: true);
+
+                            widget.adjusting(isDo: true);
                           },
                         ));
 
