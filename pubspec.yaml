@@ -51,6 +51,7 @@ dependencies:
   dio: ^5.1.1
   flutter_icons: ^1.1.0
   font_awesome_flutter: ^10.4.0
+  google_sign_in: ^6.1.1
 
 dev_dependencies:
   flutter_test:
@@ -87,6 +88,17 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
+  fonts:
+    - family: Naver_Nanum
+      fonts:
+        - asset: "fonts/NanumSquareRoundB.ttf"
+        - asset: "fonts/NanumSquareRoundEB.ttf"
+        - asset: "fonts/NanumSquareRoundL.ttf"
+        - asset: "fonts/NanumSquareRoundR.ttf"
+    - family: Hobbang
+      fonts:
+        - asset: fonts/SDSamliphopangcheTTFOutline.ttf
+        - asset: fonts/SDSamliphopangcheTTFBasic.ttf
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a

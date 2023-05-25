@@ -6,14 +6,14 @@ import 'package:milchat/screens/ReadIt/build_text_composer.dart';
 import 'package:milchat/screens/ReadIt/chat_block.dart';
 import 'package:milchat/models/fire_chat_block.dart';
 import 'package:milchat/services/api_services.dart';
+import 'package:milchat/services/util.dart';
 import 'package:milchat/test/storage_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class ReadItScreen extends StatefulWidget {
-  ReadItScreen({super.key});
-  List<ChatBlock> blocks = [];
-  static final Set<String> highlights = {};
+  const ReadItScreen({super.key});
+
   static Future saveFireChat(String responsetext) async {
     try {
       String? user = FirebaseAuth.instance.currentUser?.email;
@@ -36,57 +36,18 @@ class ReadItScreen extends StatefulWidget {
 }
 
 class _ReadItScreenState extends State<ReadItScreen> {
+  final List<ChatBlock> blocks = [];
+  final Set<String> highlights = {};
+  late List<QueryDocumentSnapshot<Map<String, dynamic>>> docs;
   final TextEditingController _controller = TextEditingController();
   Color testColor = Colors.black;
   late bool isGenerating;
-  int _selectedIndex = 0;
-  //final ScrollController _scrollController = ScrollController();
-  void changeIndex(int value) {
-    if (_selectedIndex == value) {
-      return;
-    }
-    setState(() {
-      _selectedIndex = value;
-    });
-
-    switch (value) {
-      case 0:
-        {
-          Navigator.pushReplacementNamed(context, '/readIt', arguments: {
-            "selectedIndex": 0,
-          });
-          Navigator.pop(context);
-          break;
-        }
-      case 1:
-        {
-          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
-            "selectedIndex": 1,
-          });
-          break;
-        }
-      case 2:
-        {
-          Navigator.pushReplacementNamed(context, '/content', arguments: {
-            "selectedIndex": 2,
-          });
-          break;
-        }
-
-      case 3:
-        {
-          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
-            "selectedIndex": 1,
-          });
-          break;
-        }
-    }
-  }
+  final int _selectedIndex = 0;
 
   @override
   void initState() {
     isGenerating = false;
-    if (ReadItScreen.blocks.isEmpty) {
+    if (blocks.isEmpty) {
       isGenerating = true;
       loadFireChat();
     }
@@ -106,7 +67,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
     final highWordDocs = highWordQuarySnapShot.docs;
     //로드한 단어들을 ChatBlock의 static변수에 추가한다.
     for (var element in highWordDocs) {
-      ReadItScreen.highlights.add(element.get("highWord"));
+      highlights.add(element.get("highWord"));
     }
 
     //firebase에 저장된 chatblock을 가져온다.
@@ -115,15 +76,15 @@ class _ReadItScreenState extends State<ReadItScreen> {
         .where("user", isEqualTo: userEmail)
         .orderBy("date")
         .get();
-    final chatBlockDocs = chatBlockQuarySnapShot.docs;
-    for (var element in chatBlockDocs) {
+    docs = chatBlockQuarySnapShot.docs;
+    for (var element in docs) {
       ChatBlock botMessage = ChatBlock(
         text: element.get("chatBlock"),
         sender: "bot",
-        adjusting: adjusting,
-        highlights: ReadItScreen.highlights,
+        adjusting: updateHighWord,
+        highlights: highlights,
       );
-      ReadItScreen.blocks.insert(0, botMessage);
+      blocks.insert(0, botMessage);
     }
     setState(() {
       isGenerating = false;
@@ -144,8 +105,8 @@ class _ReadItScreenState extends State<ReadItScreen> {
     }
     //highlights 중 하나를 뽑는다.
     String selectedLight;
-    if (ReadItScreen.highlights.isNotEmpty) {
-      selectedLight = ReadItScreen.highlights.pickOne();
+    if (highlights.isNotEmpty) {
+      selectedLight = highlights.pickOne();
     } else {
       selectedLight = "any";
     }
@@ -167,11 +128,11 @@ class _ReadItScreenState extends State<ReadItScreen> {
     ChatBlock botMessage = ChatBlock(
       text: fireResponseMessage,
       sender: "bot",
-      adjusting: adjusting,
-      highlights: ReadItScreen.highlights,
+      adjusting: updateHighWord,
+      highlights: highlights,
     );
     setState(() {
-      ReadItScreen.blocks.insert(0, botMessage);
+      blocks.insert(0, botMessage);
       isGenerating = false;
     });
   }
@@ -193,24 +154,33 @@ class _ReadItScreenState extends State<ReadItScreen> {
     ChatBlock botMessage = ChatBlock(
       text: fireResponseMessage,
       sender: "bot",
-      adjusting: adjusting,
-      highlights: ReadItScreen.highlights,
+      adjusting: updateHighWord,
+      highlights: highlights,
     );
     setState(() {
-      ReadItScreen.blocks.insert(0, botMessage);
+      blocks.insert(0, botMessage);
       isGenerating = false;
     });
   }
 
-  void adjusting({
-    required bool isDo,
-    String? wordToRemeve,
-  }) {
-    if (isDo) {
-      setState(() {});
+  void updateHighWord(String highWord, bool isToRemove) {
+    if (isToRemove) {
+      highlights.remove(highWord);
     } else {
-      setState(() {});
+      highlights.add(highWord);
     }
+    blocks.clear();
+    for (var element in docs) {
+      ChatBlock botMessage = ChatBlock(
+        text: element.get("chatBlock"),
+        sender: "bot",
+        adjusting: updateHighWord,
+        highlights: highlights,
+      );
+      blocks.insert(0, botMessage);
+    }
+
+    setState(() {});
   }
 
   @override
@@ -247,9 +217,9 @@ class _ReadItScreenState extends State<ReadItScreen> {
                 child: ListView.builder(
                   reverse: true,
                   padding: Vx.m8,
-                  itemCount: ReadItScreen.blocks.length,
+                  itemCount: blocks.length,
                   itemBuilder: (context, index) {
-                    ChatBlock chatblock = ReadItScreen.blocks[index];
+                    ChatBlock chatblock = blocks[index];
                     return chatblock;
                   },
                 ),
@@ -294,7 +264,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
             ],
             currentIndex: _selectedIndex,
             onTap: (value) {
-              changeIndex(value);
+              UtilFunc.changeIndex(value, context, _selectedIndex);
             },
           ),
         ),

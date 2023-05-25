@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import 'package:milchat/screens/ReadIt/readit_screen.dart';
 import 'package:milchat/services/api_services.dart';
 import 'package:milchat/test/storage_test.dart';
 
@@ -55,7 +54,7 @@ class FireHighWord {
         level: level ?? "어려워요",
         group: group ?? "non-selected",
       );
-      ReadItScreen.highlights.add(insidedText);
+      //highlights.add(insidedText);
       CollectionReference collectionRef =
           FirebaseFirestore.instance.collection("HighWord");
       await collectionRef.add(highWord.toJson());
@@ -78,7 +77,7 @@ class FireHighWord {
       for (var quarydocumentsnapshot in fireWordDocRef.docs) {
         quarydocumentsnapshot.reference.delete();
       }
-      ReadItScreen.highlights.remove(insidedText);
+      //highlights.remove(insidedText);
     } catch (e) {
       showToast("deleteFireWord error");
       showToast("deleteFireWordError$e");

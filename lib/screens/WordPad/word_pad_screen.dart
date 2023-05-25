@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:milchat/models/fire_high_word.dart';
 import 'package:milchat/screens/WordPad/wordBox.dart';
+import 'package:milchat/services/util.dart';
 
 class WordPadScreen extends StatefulWidget {
   const WordPadScreen({super.key});
@@ -12,49 +13,9 @@ class WordPadScreen extends StatefulWidget {
 }
 
 class _WordPadScreenState extends State<WordPadScreen> {
-  int _selectedIndex = 0;
   late bool isGenerating = true;
   List<FireHighWord> padWordObjectList = [];
-  void changeIndex(int value) {
-    if (_selectedIndex == value) {
-      return;
-    }
-    setState(() {
-      _selectedIndex = value;
-    });
-
-    switch (value) {
-      case 0:
-        {
-          Navigator.pushReplacementNamed(context, '/readIt', arguments: {
-            "selectedIndex": 0,
-          });
-          break;
-        }
-      case 1:
-        {
-          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
-            "selectedIndex": 1,
-          });
-          break;
-        }
-      case 2:
-        {
-          Navigator.pushReplacementNamed(context, '/content', arguments: {
-            "selectedIndex": 2,
-          });
-          break;
-        }
-
-      case 3:
-        {
-          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
-            "selectedIndex": 1,
-          });
-          break;
-        }
-    }
-  }
+  final int _selectedIndex = 1;
 
   @override
   void initState() {
@@ -81,11 +42,25 @@ class _WordPadScreenState extends State<WordPadScreen> {
     });
   }
 
+  void showAddList() {
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.grey.shade700,
+        builder: (context) {
+          return SafeArea(
+              child: Column(
+            children: const [
+              Text("단어 추가"),
+            ],
+          ));
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, Object>;
-    _selectedIndex = args["selectedIndex"];
+    // Map<String, dynamic> args =
+    //     ModalRoute.of(context)?.settings.arguments as Map<String, Object>;
+    // int selectedIndex = args["selectedIndex"];
     return MaterialApp(
       theme: ThemeData(canvasColor: Colors.black),
       home: Scaffold(
@@ -113,7 +88,9 @@ class _WordPadScreenState extends State<WordPadScreen> {
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.grey.shade800,
-          onPressed: () {},
+          onPressed: () {
+            showAddList();
+          },
           child: const Icon(
             Icons.add,
           ),
@@ -163,7 +140,7 @@ class _WordPadScreenState extends State<WordPadScreen> {
             ],
             currentIndex: _selectedIndex,
             onTap: (value) {
-              changeIndex(value);
+              UtilFunc.changeIndex(value, context, _selectedIndex);
             },
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:milchat/screens/Content/blank_question.dart';
+import 'package:milchat/services/util.dart';
 
 class ContentScreen extends StatefulWidget {
   const ContentScreen({super.key});
@@ -10,7 +11,7 @@ class ContentScreen extends StatefulWidget {
 
 class _ContentScreenState extends State<ContentScreen>
     with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0;
+  final int _selectedIndex = 2;
   late TabController controller;
 
   @override
@@ -19,53 +20,12 @@ class _ContentScreenState extends State<ContentScreen>
     controller = TabController(length: 3, vsync: this);
   }
 
-  void changeIndex(int value) {
-    if (_selectedIndex == value) {
-      return;
-    }
-    setState(() {
-      _selectedIndex = value;
-    });
-
-    switch (value) {
-      case 0:
-        {
-          Navigator.pushReplacementNamed(context, '/readIt', arguments: {
-            "selectedIndex": 0,
-          });
-          break;
-        }
-      case 1:
-        {
-          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
-            "selectedIndex": 1,
-          });
-          break;
-        }
-      case 2:
-        {
-          Navigator.pushReplacementNamed(context, '/content', arguments: {
-            "selectedIndex": 2,
-          });
-          break;
-        }
-
-      case 3:
-        {
-          Navigator.pushReplacementNamed(context, '/wordPad', arguments: {
-            "selectedIndex": 1,
-          });
-          break;
-        }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    Map<String, dynamic> args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, Object>;
-    _selectedIndex = args["selectedIndex"];
+    // Map<String, dynamic> args =
+    //     ModalRoute.of(context)?.settings.arguments as Map<String, Object>;
+    // _selectedIndex = args["selectedIndex"];
     return MaterialApp(
       theme: ThemeData(canvasColor: Colors.black),
       home: Scaffold(
@@ -139,7 +99,7 @@ class _ContentScreenState extends State<ContentScreen>
             ],
             currentIndex: _selectedIndex,
             onTap: (value) {
-              changeIndex(value);
+              UtilFunc.changeIndex(value, context, _selectedIndex);
             },
           ),
         ),

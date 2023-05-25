@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:milchat/screens/auth_screen.dart';
+import 'package:milchat/screens/Login/auth_screen.dart';
 import 'package:milchat/screens/Category/category_screen.dart';
 import 'package:milchat/screens/Content/content_screen.dart';
 import 'package:milchat/screens/ReadIt/readit_screen.dart';
-import 'package:milchat/screens/register_screen.dart';
+import 'package:milchat/screens/Login/register_screen.dart';
 import 'package:milchat/screens/setting_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:milchat/screens/WordPad/word_pad_screen.dart';

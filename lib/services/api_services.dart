@@ -32,7 +32,7 @@ class ApiService {
       if (response.statusCode == 200) {
         Map<String, dynamic> responseMap = response.data;
         var result = responseMap['message']['result']['translatedText'];
-        print('naverApiResponse: ${result.toString()}');
+        //print('naverApiResponse: ${result.toString()}');
         return result.toString();
       }
       print(response.statusCode);

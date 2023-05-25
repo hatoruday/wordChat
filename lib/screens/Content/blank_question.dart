@@ -52,16 +52,16 @@ class _BlankQuestionState extends State<BlankQuestion> {
                 children: [
                   Flexible(
                     child: Transform.scale(
-                        scale: 1.0,
+                        scale: 0.5,
                         child: Transform.translate(
-                            offset: const Offset(-30, 0),
+                            offset: const Offset(-70, -40),
                             child: Image.asset("images/simple_DARK_Q.png"))),
                   ),
                   Flexible(
                     child: Transform.scale(
-                        scale: 2.0,
+                        scale: 1.0,
                         child: Transform.translate(
-                            offset: const Offset(-20, 0),
+                            offset: const Offset(-37, 30),
                             child: Image.asset("images/simple_DARK_A.png"))),
                   )
                 ],
