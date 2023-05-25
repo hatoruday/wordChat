@@ -17,12 +17,13 @@ class ReadItScreen extends StatefulWidget {
   static Future saveFireChat(String responsetext) async {
     try {
       String? user = FirebaseAuth.instance.currentUser?.email;
+      String? uid = FirebaseAuth.instance.currentUser?.uid;
       DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
       final highWord = FireChatBlock(
-        user: user!,
-        chatBlock: responsetext,
-        date: dateFormat.format(DateTime.now()),
-      );
+          user: user!,
+          chatBlock: responsetext,
+          date: dateFormat.format(DateTime.now()),
+          uid: uid!);
       CollectionReference collectionRef =
           FirebaseFirestore.instance.collection("ChatBlock");
       await collectionRef.add(highWord.toJson());
@@ -58,11 +59,12 @@ class _ReadItScreenState extends State<ReadItScreen> {
   Future loadFireChat() async {
     setState(() {});
     final userEmail = FirebaseAuth.instance.currentUser?.email;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
     final storeInstance = FirebaseFirestore.instance;
     //highword를 firebase로부터 load한다.
     final highWordQuarySnapShot = await storeInstance
         .collection("HighWord")
-        .where("user", isEqualTo: userEmail)
+        .where("uid", isEqualTo: uid)
         .get();
     final highWordDocs = highWordQuarySnapShot.docs;
     //로드한 단어들을 ChatBlock의 static변수에 추가한다.

@@ -16,7 +16,7 @@ class _AuthFormState extends State<AuthForm> {
   late String password;
   final _formKey = GlobalKey<FormState>();
 
-  void signInWithGoogle() async {
+  Future signInWithGoogle(BuildContext context) async {
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -32,7 +32,7 @@ class _AuthFormState extends State<AuthForm> {
 
     // Once signed in, return the UserCredential
     await FirebaseAuth.instance.signInWithCredential(credential);
-    Navigator.pushNamed(context, "readIt");
+    Navigator.pushNamed(context, "/readIt");
   }
 
   signIn() async {
@@ -73,7 +73,8 @@ class _AuthFormState extends State<AuthForm> {
   //   });
   // }
 
-  List<Widget> getInputWidget(double screenWidth, double screenHeight) {
+  List<Widget> getInputWidget(
+      BuildContext context, double screenWidth, double screenHeight) {
     return [
       SizedBox(
         height: screenHeight / 10,
@@ -176,7 +177,7 @@ class _AuthFormState extends State<AuthForm> {
           onPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
               _formKey.currentState?.save();
-              //print('email : $email, password : $password');
+
               signIn();
             }
           },
@@ -207,7 +208,10 @@ class _AuthFormState extends State<AuthForm> {
               style: ButtonStyle(
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)))),
-              onPressed: signInWithGoogle,
+              onPressed: () {
+                BuildContext beforeContext = context;
+                signInWithGoogle(beforeContext);
+              },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image.asset(
@@ -264,7 +268,7 @@ class _AuthFormState extends State<AuthForm> {
                 image: AssetImage("images/word_book2.png"), fit: BoxFit.cover)),
         child: Column(
           //crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: getInputWidget(screenwidth, screenHeight),
+          children: getInputWidget(context, screenwidth, screenHeight),
         ),
       ),
     );

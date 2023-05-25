@@ -11,6 +11,7 @@ class FireHighWord {
   String date;
   String level;
   String group;
+  String uid;
 
   FireHighWord({
     required this.highWord,
@@ -19,6 +20,7 @@ class FireHighWord {
     required this.date,
     required this.level,
     required this.group,
+    required this.uid,
   });
 
   FireHighWord.fromJson(Map<String, dynamic> json)
@@ -26,8 +28,9 @@ class FireHighWord {
         wordMeaning = json['wordMeaning'] ?? "모르겠어요",
         user = json['user'],
         date = json['date'],
-        level = json['level'] ?? "어려워요",
-        group = json['group'] ?? "non-selected";
+        level = json['level'],
+        group = json['group'],
+        uid = json['uid'];
   Map<String, dynamic> toJson() => {
         'highWord': highWord,
         'user': user,
@@ -35,6 +38,7 @@ class FireHighWord {
         'level': level,
         'group': group,
         'wordMeaning': wordMeaning,
+        'uid': uid
       };
 
   static Future saveFireWord(
@@ -44,6 +48,7 @@ class FireHighWord {
       String? customMeaning}) async {
     try {
       String? user = FirebaseAuth.instance.currentUser?.email;
+      String? uid = FirebaseAuth.instance.currentUser?.uid;
       DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
       String papagoResponse = await ApiService.getNaverResponse(insidedText);
       final highWord = FireHighWord(
@@ -53,6 +58,7 @@ class FireHighWord {
         date: dateFormat.format(DateTime.now()),
         level: level ?? "어려워요",
         group: group ?? "non-selected",
+        uid: uid!,
       );
       //highlights.add(insidedText);
       CollectionReference collectionRef =
@@ -67,12 +73,12 @@ class FireHighWord {
   static Future deleteFireWord(String insidedText) async {
     try {
       String? user = FirebaseAuth.instance.currentUser?.email;
-
+      String? uid = FirebaseAuth.instance.currentUser?.uid;
       CollectionReference collectionRef =
           FirebaseFirestore.instance.collection("HighWord");
       QuerySnapshot fireWordDocRef = await collectionRef
           .where("highWord", isEqualTo: insidedText)
-          .where("user", isEqualTo: user)
+          .where("uid", isEqualTo: uid)
           .get();
       for (var quarydocumentsnapshot in fireWordDocRef.docs) {
         quarydocumentsnapshot.reference.delete();

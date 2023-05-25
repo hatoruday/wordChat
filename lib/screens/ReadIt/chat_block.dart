@@ -35,24 +35,20 @@ class ChatBlock extends StatefulWidget {
         .toList(); // 리스트에 모든 토큰이 담기게 된다.
 
     for (var word in words) {
-      WordBlock? wordToPut;
+      WordBlock wordToPut = WordBlock(
+        id: word,
+        backColor: Colors.transparent,
+      );
       for (var light in highlights) {
         if (light == word) {
-          WordBlock highedBlock = WordBlock(
+          wordToPut = WordBlock(
               id: light,
               backColor: Colors.indigo.shade200,
               textColor: Colors.white);
-          wordToPut = highedBlock;
           break;
-        } else {
-          WordBlock original = WordBlock(
-            id: word,
-            backColor: Colors.transparent,
-          );
-          wordToPut = original;
         }
       }
-      wordBlocks.add(wordToPut!);
+      wordBlocks.add(wordToPut);
     }
   }
 
