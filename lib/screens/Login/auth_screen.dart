@@ -16,23 +16,27 @@ class _AuthFormState extends State<AuthForm> {
   late String password;
   final _formKey = GlobalKey<FormState>();
 
-  Future signInWithGoogle(BuildContext context) async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  Future signInWithGoogle() async {
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
 
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
 
-    // Once signed in, return the UserCredential
-    await FirebaseAuth.instance.signInWithCredential(credential);
-    Navigator.pushNamed(context, "/readIt");
+      // Once signed in, return the UserCredential
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      Navigator.pushNamed(context, "/readIt");
+    } catch (e) {
+      print(e);
+    }
   }
 
   signIn() async {
@@ -158,7 +162,7 @@ class _AuthFormState extends State<AuthForm> {
               ),
               validator: (value) {
                 if (value?.isEmpty ?? false) {
-                  password = value ?? "";
+                  return "Please enter password";
                 }
                 return null;
               },
@@ -209,8 +213,7 @@ class _AuthFormState extends State<AuthForm> {
                   shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)))),
               onPressed: () {
-                BuildContext beforeContext = context;
-                signInWithGoogle(beforeContext);
+                signInWithGoogle();
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

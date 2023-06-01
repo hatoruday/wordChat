@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:milchat/models/fire_high_word.dart';
+import 'package:milchat/screens/WordPad/add_word_page.dart';
 import 'package:milchat/screens/WordPad/wordBox.dart';
 import 'package:milchat/services/util.dart';
 
@@ -42,17 +43,12 @@ class _WordPadScreenState extends State<WordPadScreen> {
     });
   }
 
-  void showAddList() {
+  void showAddWordPage() {
     showModalBottomSheet(
         context: context,
-        backgroundColor: Colors.grey.shade700,
+        backgroundColor: Colors.white,
         builder: (context) {
-          return SafeArea(
-              child: Column(
-            children: const [
-              Text("단어 추가"),
-            ],
-          ));
+          return AddWordPage();
         });
   }
 
@@ -89,7 +85,7 @@ class _WordPadScreenState extends State<WordPadScreen> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.grey.shade800,
           onPressed: () {
-            showAddList();
+            showAddWordPage();
           },
           child: const Icon(
             Icons.add,
