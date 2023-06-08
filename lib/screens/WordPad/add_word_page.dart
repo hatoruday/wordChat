@@ -1,9 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class AddWordPage extends StatelessWidget {
-  AddWordPage({super.key});
+class AddWordPage extends StatefulWidget {
+  const AddWordPage({super.key});
 
+  @override
+  State<AddWordPage> createState() => _AddWordPageState();
+}
+
+class _AddWordPageState extends State<AddWordPage> {
   final GlobalKey _formKey = GlobalKey<FormState>();
+  void loadUserInformation() async {
+    String? userEmail = FirebaseAuth.instance.currentUser?.email;
+    String userName = userEmail!.split("@")[0];
+
+    String? userId = FirebaseAuth.instance.currentUser?.uid;
+    final instance = FirebaseFirestore.instance;
+    final highWordQuarySnapshot = await instance
+        .collection("HighWord")
+        .where("uid", isEqualTo: userId)
+        .get();
+    final highWordDocs = highWordQuarySnapshot.docs;
+    final highWordLength = highWordDocs.length;
+    Map<String, Object> userInformation = {
+      "userName": userName,
+      "highWordLength": highWordLength
+    };
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   Widget addForm() {
     late String wordToAdd;
     late String wordMean;
@@ -26,28 +57,25 @@ class AddWordPage extends StatelessWidget {
             ),
           ),
           TextFormField(
-            style: const TextStyle(fontSize: 10),
+            style: const TextStyle(fontSize: 20),
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey.shade200,
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(
-                    color: Colors.black,
-                    width: 1.0,
-                  )),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(
-                    color: Colors.black,
-                    width: 1.0,
-                  )),
-              // border: OutlineInputBorder(
-              //     borderRadius: BorderRadius.circular(40),
-              //     borderSide:
-              //         const BorderSide(color: Colors.red, width: 3.0)),
-            ),
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: const BorderSide(
+                      color: Colors.black,
+                      width: 1.0,
+                    )),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: const BorderSide(
+                      color: Colors.black,
+                      width: 1.0,
+                    )),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 1, horizontal: 15)),
             validator: (value) {
               if (value?.isEmpty ?? false) {
                 return 'please enter email';
@@ -73,8 +101,9 @@ class AddWordPage extends StatelessWidget {
             ),
           ),
           TextFormField(
-            style: const TextStyle(fontSize: 10),
+            style: const TextStyle(fontSize: 20),
             decoration: InputDecoration(
+              hintText: "단어",
               filled: true,
               fillColor: Colors.grey.shade200,
               enabledBorder: OutlineInputBorder(
@@ -92,15 +121,15 @@ class AddWordPage extends StatelessWidget {
                 ),
               ),
               contentPadding:
-                  const EdgeInsets.symmetric(vertical: 1, horizontal: 5),
+                  const EdgeInsets.symmetric(vertical: 1, horizontal: 15),
             ),
             validator: (value) {
               if (value?.isEmpty ?? false) {
-                return "please enter the password";
+                return "단어를 입력해주세요.";
               }
               return null;
             },
-            obscureText: true,
+            obscureText: false,
             onSaved: (String? value) {
               wordMean = value ?? "";
             },
@@ -110,10 +139,13 @@ class AddWordPage extends StatelessWidget {
     );
   }
 
+  void saveTheWord() {
+    return;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Column(
+    return Column(
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -214,10 +246,19 @@ class AddWordPage extends StatelessWidget {
                 ],
               ),
               addForm(),
+              ElevatedButton(
+                onPressed: saveTheWord,
+                style: const ButtonStyle(
+                    fixedSize: MaterialStatePropertyAll(Size(100, 10))),
+                child: const Text(
+                  "단어저장",
+                  style: TextStyle(fontSize: 15, color: Colors.black),
+                ),
+              )
             ],
           ),
         ),
       ],
-    ));
+    );
   }
 }

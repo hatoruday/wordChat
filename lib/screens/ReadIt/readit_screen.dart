@@ -58,7 +58,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
 
   Future loadFireChat() async {
     setState(() {});
-    final userEmail = FirebaseAuth.instance.currentUser?.email;
+
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final storeInstance = FirebaseFirestore.instance;
     //highword를 firebase로부터 load한다.
@@ -75,7 +75,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
     //firebase에 저장된 chatblock을 가져온다.
     final chatBlockQuarySnapShot = await storeInstance
         .collection("ChatBlock")
-        .where("user", isEqualTo: userEmail)
+        .where("uid", isEqualTo: uid)
         .orderBy("date")
         .get();
     docs = chatBlockQuarySnapShot.docs;
