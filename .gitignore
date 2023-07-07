@@ -5,7 +5,7 @@
 .idea
 **/node_modules/*
 **/.firebaserc
-
+**/firebase_options.dart
 ### Firebase Patch ###
 .runtimeconfig.json
 .firebase/
@@ -230,7 +230,7 @@ dist
 .svn/
 migrate_working_dir/
 .env
-**.firebase_options.dart
+
 # IntelliJ related
 *.iml
 *.ipr
