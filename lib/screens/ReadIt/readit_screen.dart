@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:milchat/screens/ReadIt/build_text_composer.dart';
 import 'package:milchat/screens/ReadIt/chat_block.dart';
@@ -58,7 +59,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
 
   Future loadFireChat() async {
     setState(() {});
-
+    print(dotenv.get("OPENAI_APIKEY"));
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final storeInstance = FirebaseFirestore.instance;
     //highword를 firebase로부터 load한다.
@@ -120,6 +121,7 @@ class _ReadItScreenState extends State<ReadItScreen> {
       selectedCategory = "any subject";
     }
     //firebase cloud functions을 이용해 chatgpt Api Response를 가져온다.
+
     ApiService service = ApiService(
         selectedCategory: selectedCategory, selectedLight: selectedLight);
     String fireResponseMessage =
