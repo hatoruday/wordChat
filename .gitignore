@@ -9,7 +9,7 @@
 ### Firebase Patch ###
 .runtimeconfig.json
 .firebase/
-**/images/*
+images/*
 ### Flutter ###
 # Flutter/Dart/Pub related
 **/doc/api/
