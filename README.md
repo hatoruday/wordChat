@@ -13,3 +13,4 @@ The sentences made are made of highlighted words that the user has not memorized
 
 
 It promotes deeper understanding of words and sentence structures by directly reading and understanding sentence structures through word appearance algorithms.
+<imag src = images/>
