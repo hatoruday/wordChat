@@ -1,7 +1,13 @@
 # Created by https://www.toptal.com/developers/gitignore/api/firebase,node,flutter
 # Edit at https://www.toptal.com/developers/gitignore?templates=firebase,node,flutter
 
+
+#ios, android, macos
+ios/*
+android/*
+macos/*
 ### Firebase ###
+
 functions/index.js
 .idea
 **/node_modules/*
